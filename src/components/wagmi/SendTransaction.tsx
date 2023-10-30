@@ -1,7 +1,7 @@
 import { parseEther } from 'viem'
 import { useSendTransaction, useWaitForTransaction } from 'wagmi'
 
-import { stringify } from '../utils/stringify'
+import { stringify } from '../../utils/stringify'
 
 export function SendTransaction() {
   const { data, error, isLoading, isError, sendTransaction } =
@@ -9,7 +9,7 @@ export function SendTransaction() {
   const {
     data: receipt,
     isLoading: isPending,
-    isSuccess,
+    isSuccess
   } = useWaitForTransaction({ hash: data?.hash })
 
   return (
@@ -22,7 +22,7 @@ export function SendTransaction() {
           const value = formData.get('value') as `${number}`
           sendTransaction({
             to: address,
-            value: parseEther(value),
+            value: parseEther(value)
           })
         }}
       >

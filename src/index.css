@@ -1,0 +1,135 @@
+body {
+  margin: 0;
+}
+
+.app-container {
+  width: 100%;
+  height: 100vh;
+  /* height: 100%; */
+  background: #eeeeee;
+}
+
+.header {
+  align-self: stretch;
+  height: 60px;
+  padding-left: 64px;
+  padding-right: 64px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #c26d6d;
+  justify-content: space-between;
+  overflow: visible;
+}
+
+.footer {
+  align-self: stretch;
+  height: 60px;
+  padding-left: 64px;
+  padding-right: 64px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #c26d6d;
+  justify-content: center;
+  overflow: visible;
+}
+
+.header-title {
+  color: #dd6b6b;
+  font-size: 32px;
+  font-family: Inter;
+  font-style: italic;
+  font-weight: 700;
+  word-wrap: break-word;
+  text-shadow: 2px 2px 0 #2d2d2d, -1px -1px 0 #2d2d2d, 1px -1px 0 #2d2d2d,
+    -1px 1px 0 #2d2d2d, 1px 1px 0 #2d2d2d;
+}
+
+.widgetContainer {
+  height: 100%;
+}
+
+/* .content {
+  align-self: stretch;
+  padding-left: 400px;
+  padding-right: 400px;
+  padding-top: 100px;
+  padding-bottom: 100px;
+} */
+
+.sendWidget {
+  width: 426px;
+  height: 80%;
+
+  padding: 30px;
+  background: linear-gradient(331deg, #ffd4d4 0%, #f9eeee 100%);
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.25);
+  border-radius: 25px;
+  overflow: hidden;
+  border: 3px white solid;
+}
+
+.input-container {
+  align-self: stretch;
+  height: 100%;
+  justify-content: flex-start;
+}
+
+.token-input {
+  align-self: stretch;
+  padding: 15px;
+  background: #b2b2b2;
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.25) inset;
+  border-radius: 10px;
+}
+
+.address-input {
+  align-self: stretch;
+  padding: 15px;
+  background: #b2b2b2;
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.25) inset;
+  border-radius: 10px;
+}
+
+.input-element {
+  width: 100%;
+}
+
+.button-main {
+  width: 100%;
+}
+
+.token-selector-button {
+  padding: 3px 10px;
+}
+
+.placeholder-circle {
+  aspect-ratio: 1/1;
+  height: calc(100% - 2 * 3px); /* 100% height of the parent minus padding */
+  background-color: grey;
+  border-radius: 50%;
+}
+
+pre {
+  display: block;
+  text-align: start;
+  max-width: 500px;
+  background-color: lightgray;
+  padding: 14px;
+  max-height: 400px;
+  scroll-behavior: auto;
+  overflow: auto;
+}
+
+.symbol {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  margin: 10px;
+}
+
+.output {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}

@@ -1,7 +1,7 @@
 import { paginatedIndexesConfig, useContractInfiniteReads } from 'wagmi'
 
 import { wagmiContractConfig } from './contracts'
-import { stringify } from '../utils/stringify'
+import { stringify } from '../../utils/stringify'
 
 export function ReadContractsInfinite() {
   const { data, isLoading, isSuccess, fetchNextPage } =
@@ -12,11 +12,11 @@ export function ReadContractsInfinite() {
           {
             ...wagmiContractConfig,
             functionName: 'ownerOf',
-            args: [BigInt(index)] as const,
-          },
+            args: [BigInt(index)] as const
+          }
         ],
-        { start: 0, perPage: 10, direction: 'increment' },
-      ),
+        { start: 0, perPage: 10, direction: 'increment' }
+      )
     })
 
   return (

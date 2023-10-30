@@ -1,4 +1,5 @@
 import { useNetwork, useSwitchNetwork } from 'wagmi'
+import { Button, Box } from '@radix-ui/themes'
 
 export function NetworkSwitcher() {
   const { chain } = useNetwork()
@@ -6,7 +7,7 @@ export function NetworkSwitcher() {
     useSwitchNetwork()
 
   return (
-    <div>
+    <Box>
       <div>
         Connected to {chain?.name ?? chain?.id}
         {chain?.unsupported && ' (unsupported)'}
@@ -17,16 +18,16 @@ export function NetworkSwitcher() {
           Switch to:{' '}
           {chains.map((x) =>
             x.id === chain?.id ? null : (
-              <button key={x.id} onClick={() => switchNetwork(x.id)}>
+              <Button key={x.id} onClick={() => switchNetwork(x.id)}>
                 {x.name}
                 {isLoading && x.id === pendingChainId && ' (switching)'}
-              </button>
-            ),
+              </Button>
+            )
           )}
         </div>
       )}
 
       <div>{error?.message}</div>
-    </div>
+    </Box>
   )
 }

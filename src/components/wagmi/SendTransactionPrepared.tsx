@@ -3,10 +3,10 @@ import { parseEther, stringify } from 'viem'
 import {
   usePrepareSendTransaction,
   useSendTransaction,
-  useWaitForTransaction,
+  useWaitForTransaction
 } from 'wagmi'
 
-import { useDebounce } from '../hooks/useDebounce'
+import { useDebounce } from '../../hooks/useDebounce'
 
 export function SendTransactionPrepared() {
   const [to, setTo] = useState('')
@@ -18,14 +18,14 @@ export function SendTransactionPrepared() {
   const { config } = usePrepareSendTransaction({
     to: debouncedTo,
     value: debouncedValue ? parseEther(value as `${number}`) : undefined,
-    enabled: Boolean(debouncedTo && debouncedValue),
+    enabled: Boolean(debouncedTo && debouncedValue)
   })
   const { data, error, isLoading, isError, sendTransaction } =
     useSendTransaction(config)
   const {
     data: receipt,
     isLoading: isPending,
-    isSuccess,
+    isSuccess
   } = useWaitForTransaction({ hash: data?.hash })
 
   return (

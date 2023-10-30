@@ -1,30 +1,18 @@
-import { useState } from 'react'
 import { BaseError } from 'viem'
-import {
-  useContractWrite,
-  usePrepareContractWrite,
-  useWaitForTransaction,
-} from 'wagmi'
+import { useContractWrite, useWaitForTransaction } from 'wagmi'
 
 import { wagmiContractConfig } from './contracts'
-import { useDebounce } from '../hooks/useDebounce'
-import { stringify } from '../utils/stringify'
+import { stringify } from '../../utils/stringify'
 
-export function WriteContractPrepared() {
-  const [tokenId, setTokenId] = useState('')
-  const debouncedTokenId = useDebounce(tokenId)
-
-  const { config } = usePrepareContractWrite({
+export function WriteContract() {
+  const { write, data, error, isLoading, isError } = useContractWrite({
     ...wagmiContractConfig,
-    functionName: 'mint',
-    enabled: Boolean(debouncedTokenId),
-    args: [BigInt(debouncedTokenId)],
+    functionName: 'mint'
   })
-  const { write, data, error, isLoading, isError } = useContractWrite(config)
   const {
     data: receipt,
     isLoading: isPending,
-    isSuccess,
+    isSuccess
   } = useWaitForTransaction({ hash: data?.hash })
 
   return (
@@ -33,14 +21,15 @@ export function WriteContractPrepared() {
       <form
         onSubmit={(e) => {
           e.preventDefault()
-          write?.()
+          const formData = new FormData(e.target as HTMLFormElement)
+          const tokenId = formData.get('tokenId') as string
+          write({
+            args: [BigInt(tokenId)]
+          })
         }}
       >
-        <input
-          placeholder="token id"
-          onChange={(e) => setTokenId(e.target.value)}
-        />
-        <button disabled={!write} type="submit">
+        <input name="tokenId" placeholder="token id" />
+        <button disabled={isLoading} type="submit">
           Mint
         </button>
       </form>
