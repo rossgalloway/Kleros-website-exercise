@@ -19,7 +19,7 @@ input {
 
 .DialogContent {
   background-color: white;
-  border-radius: 6px;
+  border-radius: 25px;
   box-shadow: hsl(206 22% 7% / 35%) 0px 10px 38px -10px,
     hsl(206 22% 7% / 20%) 0px 10px 20px -15px;
   position: fixed;
@@ -27,9 +27,9 @@ input {
   left: 50%;
   transform: translate(-50%, -50%);
   width: 90vw;
-  max-width: 450px;
+  max-width: 500px;
   max-height: 100%;
-  padding: 25px;
+  padding: 25px 0;
   animation: contentShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 .DialogContent:focus {
@@ -37,14 +37,14 @@ input {
 }
 
 .DialogTitle {
-  margin: 0;
+  margin: 40px 10px 10px 10px;
   font-weight: 500;
   color: var(--mauve-12);
   font-size: 17px;
 }
 
 .DialogDescription {
-  margin: 10px 0 20px;
+  margin: 10px;
   color: var(--mauve-11);
   font-size: 15px;
   line-height: 1.5;
@@ -103,20 +103,6 @@ input {
   box-shadow: 0 0 0 2px var(--violet-7);
 }
 
-.Fieldset {
-  display: flex;
-  gap: 20px;
-  align-items: center;
-  margin-bottom: 15px;
-}
-
-.Label {
-  font-size: 15px;
-  color: var(--violet-11);
-  width: 90px;
-  text-align: right;
-}
-
 .Input {
   width: 100%;
   flex: 1;
@@ -140,6 +126,7 @@ input {
   display: flex;
   align-items: center;
   cursor: pointer;
+  margin: 5px 0px;
 }
 
 .TokenItem:hover {
@@ -152,8 +139,18 @@ input {
 }
 
 .TokenList {
-  height: calc(100vh * 0.7);
+  height: calc(100vh * 0.69);
   overflow-y: scroll;
+}
+
+.tokenTicker {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.tokenName {
+  font-size: 12px;
+  font-weight: 400;
 }
 
 @keyframes overlayShow {

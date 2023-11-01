@@ -7,7 +7,7 @@ import { WagmiConfig } from 'wagmi'
 import { App } from './App'
 import { chains, config } from './wagmi'
 
-import { Theme } from '@radix-ui/themes'
+import { Theme, ThemePanel } from '@radix-ui/themes'
 import { TokenProvider } from './contexts/tokenContext'
 import '@radix-ui/themes/styles.css'
 import './index.css'
@@ -15,10 +15,11 @@ import './index.css'
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <WagmiConfig config={config}>
-      <RainbowKitProvider chains={chains}>
+      <RainbowKitProvider chains={chains} modalSize="compact">
         <TokenProvider>
-          <Theme>
+          <Theme accentColor="gray" radius="full">
             <App />
+            {/* <ThemePanel /> */}
           </Theme>
         </TokenProvider>
       </RainbowKitProvider>

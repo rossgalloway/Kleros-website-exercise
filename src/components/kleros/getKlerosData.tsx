@@ -1,10 +1,15 @@
 import { useEffect, useState } from 'react'
 import { BaseError } from 'viem'
-import { type Address, useContractRead } from 'wagmi'
+import { type Address, useContractRead, erc20ABI } from 'wagmi'
 import { badgeContractConfig, tokensViewContractConfig } from './abis'
 import { Button } from '@radix-ui/themes'
 import { useTokens } from '../../contexts/tokenContext'
-import { type TokenObject } from '../../types/tokenList'
+import {
+  type TokenDataArray,
+  TokenData,
+  TokenContractConfig
+} from '../../types/tokenListTypes'
+import { ETHData } from '../../contexts/tokenContext'
 
 type Filter = readonly [
   boolean,
@@ -20,7 +25,6 @@ type Filter = readonly [
 export function QueryBadges() {
   const [badgeAddresses, setBadgeAddresses] = useState<Address[]>([])
   const [tokenIds, setTokenIds] = useState<readonly Address[]>([])
-  const { listTokens, setListTokens } = useTokens()
   const zeroAddress: Address = '0x0000000000000000000000000000000000000000'
   const t2crAddr: Address = '0xebcf3bca271b26ae4b162ba560e243055af0e679'
 
@@ -88,7 +92,7 @@ function getTokens(
   t2crAddr: Address,
   zeroAddress: Address
 ) {
-  const { listTokens, setListTokens } = useTokens()
+  const { listTokens, setListTokens, setTokenContractConfigs } = useTokens()
   const { data, isRefetching, refetch } = useContractRead({
     ...tokensViewContractConfig,
     functionName: 'getTokens',
@@ -99,8 +103,19 @@ function getTokens(
   })
   useEffect(() => {
     if (data !== undefined) {
-      setListTokens(data)
-      console.log('Listed Tokens: ', data)
+      const contractConfigs: TokenContractConfig[] = []
+      for (const token of data) {
+        const tokenContractConfig = {
+          address: token.addr,
+          abi: erc20ABI
+        } as const
+        contractConfigs.push(tokenContractConfig)
+      }
+      setTokenContractConfigs(contractConfigs)
+      const updatedListTokens: TokenDataArray = [ETHData, ...data]
+      setListTokens(updatedListTokens)
+      console.log('Listed Tokens: ', updatedListTokens)
+      console.log('Token Contract Configs: ', contractConfigs)
     }
   }, [data])
 }
