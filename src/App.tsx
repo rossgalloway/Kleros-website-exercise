@@ -1,36 +1,40 @@
-import { useEffect } from 'react'
+import React from 'react'
 import { useAccount } from 'wagmi'
+import { GetBalances } from './components/getBalances'
+import { QueryKlerosTokens } from './components/kleros/QueryKlerosTokens'
 import { Flex } from '@radix-ui/themes'
+import { Toaster } from 'react-hot-toast'
 import Header from './components/header'
-import Footer from './components/footer'
 import SendWidget from './components/sendWidget'
-import { QueryBadges } from './components/kleros/getKlerosData'
-import GetBalances from './components/getBalances'
-
-// import Scratch from './components/scratch'
+import Footer from './components/footer'
+import { useTokens } from './contexts/tokenContext'
 
 export function App() {
   const { isConnected } = useAccount()
+  const { retrievedWalletBalances, retrievedBadgeTokens } = useTokens()
 
   return (
-    <Flex
-      className="app-container"
-      direction="column"
-      justify="center"
-      align="center"
-    >
-      <Header />
-      {isConnected && <GetBalances />}
+    <>
+      <Toaster position="bottom-right" />
       <Flex
-        className="widgetContainer"
-        align="center"
-        justify="center"
+        className="app-container"
         direction="column"
+        justify="center"
+        align="center"
       >
-        <SendWidget />
-        <QueryBadges />
+        <Header />
+        <Flex
+          className="widgetContainer"
+          align="center"
+          justify="center"
+          direction="column"
+        >
+          {!retrievedBadgeTokens && <QueryKlerosTokens />}
+          {isConnected && !retrievedWalletBalances && <GetBalances />}
+          <SendWidget />
+        </Flex>
+        <Footer />
       </Flex>
-      <Footer />
-    </Flex>
+    </>
   )
 }

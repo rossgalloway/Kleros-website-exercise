@@ -15,5 +15,5 @@ export type TokenData = {
 
 export type TokenContractConfig = {
   address: Address
-  abi: any
+  abi: never
 }

@@ -15,11 +15,6 @@ const { chains, publicClient, webSocketPublicClient } = configureChains(
     infuraProvider({ apiKey: import.meta.env.VITE_INFURA_API_KEY }),
     publicProvider()
   ]
-  // [
-  //   alchemyProvider({ apiKey: 'WePsCAsJdb1J3zYRoXDFAImCVjrKoLcP' }),
-  //   infuraProvider({ apiKey: 'faf4973ee274421383cf0f217c768149' }),
-  //   publicProvider()
-  // ]
 )
 
 const { connectors } = getDefaultWallets({

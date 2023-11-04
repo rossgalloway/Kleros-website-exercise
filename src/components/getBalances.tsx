@@ -1,12 +1,22 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useAccount, useBalance, useContractReads } from 'wagmi'
 import { useTokens } from '../contexts/tokenContext'
 import { useEffect } from 'react'
 import { TokenData, TokenDataArray } from '../types/tokenListTypes'
+import { useTransactionToast } from '../hooks/useToast'
+import { useSendWidgetContext } from './sendWidget/sendWidgetContext'
 
 export function GetBalances() {
   const { address } = useAccount()
-  const { tokenContractConfigs } = useTokens()
-  const { listTokens, setListTokens, setSelectedToken } = useTokens()
+  const {
+    tokenContractConfigs,
+    setRetrievedWalletBalances,
+    listTokens,
+    setListTokens
+  } = useTokens()
+  const { showSuccessToast, showErrorToast, showLoadingToast } =
+    useTransactionToast()
+  const { selectedToken, setSelectedToken } = useSendWidgetContext()
 
   const contracts = tokenContractConfigs.map((config) => ({
     ...config,
@@ -14,14 +24,18 @@ export function GetBalances() {
     args: [address as string]
   }))
 
-  const { data: EthBalanceData, refetch: refetchBalance } = useBalance({
+  const { data: ethBalanceData, isError: ethBalanceError } = useBalance({
     address,
     watch: true
   })
 
+  if (ethBalanceError) {
+    showErrorToast('Error fetching ETH balance')
+  }
+
   const {
     data: ercBalanceData,
-    isError,
+    isError: ercBalanceError,
     isLoading
   } = useContractReads({
     contracts,
@@ -35,11 +49,19 @@ export function GetBalances() {
     }
   })
 
+  if (ercBalanceError) {
+    showErrorToast('Error fetching ERC20 balance')
+  }
+
+  if (isLoading) {
+    showLoadingToast('Fetching balances...')
+  }
+
   useEffect(() => {
-    if (ercBalanceData && EthBalanceData && listTokens) {
+    if (ercBalanceData && ethBalanceData && listTokens) {
       const updatedListTokens: TokenDataArray = listTokens.map((token) => {
         if (token && token.addr === '0xNull') {
-          return { ...token, balance: EthBalanceData.value } as TokenData
+          return { ...token, balance: ethBalanceData.value } as TokenData
         } else {
           // Find the corresponding balance data by matching the address
           const matchingBalanceData = ercBalanceData.find(
@@ -52,10 +74,16 @@ export function GetBalances() {
         }
       })
       setListTokens(updatedListTokens)
-      setSelectedToken(updatedListTokens[0])
-      console.log('updated Balance Values: ', updatedListTokens)
+      if (updatedListTokens.length > 0) {
+        setRetrievedWalletBalances(true)
+        showSuccessToast('Balances updated')
+        console.log('updated Balance Values: ', updatedListTokens)
+      }
+      if (!selectedToken) {
+        setSelectedToken(updatedListTokens[0])
+      }
     }
-  }, [ercBalanceData, EthBalanceData])
+  }, [ercBalanceData, ethBalanceData])
 
   return null
 }

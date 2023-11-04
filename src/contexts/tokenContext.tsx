@@ -1,33 +1,24 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react'
 import {
   type TokenDataArray,
-  TokenData,
   TokenContractConfig
 } from '../types/tokenListTypes'
 
 interface TokenContextProps {
-  listTokens: TokenDataArray | null
-  setListTokens: React.Dispatch<React.SetStateAction<TokenDataArray | null>>
-  selectedToken: TokenData
-  setSelectedToken: React.Dispatch<React.SetStateAction<TokenData>>
+  listTokens: TokenDataArray
+  setListTokens: React.Dispatch<React.SetStateAction<TokenDataArray>>
   tokenContractConfigs: TokenContractConfig[]
   setTokenContractConfigs: React.Dispatch<
     React.SetStateAction<TokenContractConfig[]>
   >
-}
-
-export const ETHData: TokenData = {
-  ID: 'null',
-  name: 'Ethereum',
-  ticker: 'ETH',
-  addr: '0xNull',
-  symbolMultihash: 'null',
-  status: 1,
-  decimals: 18n
+  retrievedWalletBalances: boolean
+  setRetrievedWalletBalances: React.Dispatch<React.SetStateAction<boolean>>
+  retrievedBadgeTokens: boolean
+  setRetrievedBadgeTokens: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 // Create a context with a default value
-const TokenContext = createContext<TokenContextProps | null>(null)
+const TokenContext = createContext<TokenContextProps | undefined>(undefined)
 
 interface TokenProviderProps {
   children: ReactNode
@@ -35,20 +26,26 @@ interface TokenProviderProps {
 
 // Create a provider component
 export const TokenProvider: React.FC<TokenProviderProps> = ({ children }) => {
-  const [listTokens, setListTokens] = useState<TokenDataArray | null>(null)
-  const [selectedToken, setSelectedToken] = useState<TokenData>(ETHData)
+  const [listTokens, setListTokens] = useState<TokenDataArray>([])
   const [tokenContractConfigs, setTokenContractConfigs] = useState<
     TokenContractConfig[]
   >([])
+  const [retrievedWalletBalances, setRetrievedWalletBalances] =
+    useState<boolean>(false)
+  const [retrievedBadgeTokens, setRetrievedBadgeTokens] =
+    useState<boolean>(false)
+
   return (
     <TokenContext.Provider
       value={{
         listTokens,
         setListTokens,
-        selectedToken,
-        setSelectedToken,
         tokenContractConfigs,
-        setTokenContractConfigs
+        setTokenContractConfigs,
+        retrievedWalletBalances,
+        setRetrievedWalletBalances,
+        retrievedBadgeTokens,
+        setRetrievedBadgeTokens
       }}
     >
       {children}

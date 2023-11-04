@@ -1,16 +1,21 @@
+import React from 'react'
+import { useRef, useState } from 'react'
+
 import * as Dialog from '@radix-ui/react-dialog'
 import { Cross2Icon } from '@radix-ui/react-icons'
 import { Text } from '@radix-ui/themes'
 import Spinner from 'react-spinkit'
 import TokenSelectorButton from './TokenSelectorButton'
-import { useTokens } from '../contexts/tokenContext'
-import { type TokenData } from '../types/tokenListTypes'
+
+import { useTokens } from '../../contexts/tokenContext'
+import { useSendWidgetContext } from './sendWidgetContext'
+
+import { type TokenData } from '../../types/tokenListTypes'
 import './TokenSelectorDialog.css'
-import { useRef, useState } from 'react'
-import { format } from 'util'
 
 const TokenSelectorDialog = () => {
-  const { listTokens, selectedToken, setSelectedToken } = useTokens()
+  const { listTokens } = useTokens()
+  const { setSelectedToken } = useSendWidgetContext()
   const closeRef = useRef<HTMLButtonElement | null>(null)
   const [imageLoaded, setImageLoaded] = useState(false)
 
@@ -32,7 +37,6 @@ const TokenSelectorDialog = () => {
     if (!a || !b) return 0
     return Number(b.balance) - Number(a.balance)
   })
-
   const finalSortedTokens = [listTokens?.[0], ...(sortedTokens || [])].filter(
     Boolean
   )
@@ -46,11 +50,8 @@ const TokenSelectorDialog = () => {
         <Dialog.Overlay className="DialogOverlay" />
         <Dialog.Content className="DialogContent">
           <Dialog.Title className="DialogTitle">Select a Token</Dialog.Title>
-          {/* <Dialog.Description className="DialogDescription">
-            Select the token you want to send
-          </Dialog.Description> */}
           <div className="TokenList">
-            {finalSortedTokens?.map((token, index) => {
+            {finalSortedTokens?.map((token) => {
               if (!token) return null
               const { name, ticker, symbolMultihash, ID, balance, decimals } =
                 token

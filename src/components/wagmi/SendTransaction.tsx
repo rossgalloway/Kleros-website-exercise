@@ -1,3 +1,4 @@
+/* eslint-disable react/react-in-jsx-scope */
 import { parseEther } from 'viem'
 import { useSendTransaction, useWaitForTransaction } from 'wagmi'
 
