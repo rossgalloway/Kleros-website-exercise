@@ -7,5 +7,6 @@ export const ETHData: TokenData = {
   addr: '0xNull',
   symbolMultihash: 'null',
   status: 1,
-  decimals: 18n
+  decimals: 18n,
+  balance: 0n
 }

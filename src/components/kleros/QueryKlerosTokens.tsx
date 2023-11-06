@@ -10,7 +10,7 @@ export function QueryKlerosTokens() {
   const [tokenIds, setTokenIds] = useState<readonly Address[]>([])
   const zeroAddress = '0x0000000000000000000000000000000000000000'
   const t2crAddr = '0xebcf3bca271b26ae4b162ba560e243055af0e679'
-  const { showSuccessToast, showErrorToast, showLoadingToast } =
+  const { showSuccessToast, showErrorToast, showInfoToast } =
     useTransactionToast()
 
   const filter = [
@@ -53,7 +53,14 @@ export function QueryKlerosTokens() {
     ...tokensViewContractConfig,
     functionName: 'getTokens',
     args: [t2crAddr, tokenIds],
-    select: (data) => data?.filter((token) => token.addr !== zeroAddress)
+    select: (data) => {
+      return data
+        ?.filter((token) => token.addr !== zeroAddress)
+        .map((token) => ({
+          ...token,
+          balance: 0n
+        }))
+    }
   })
 
   if (badgeError || tokenIdsError || tokensDataError) {
@@ -61,7 +68,7 @@ export function QueryKlerosTokens() {
   }
 
   if (badgeIsLoading || tokenIdsIsLoading || tokensDataIsLoading) {
-    showLoadingToast('Fetching Kleros token list...')
+    showInfoToast('Fetching Kleros token list...')
   }
 
   const { setListTokens, setTokenContractConfigs, setRetrievedBadgeTokens } =
