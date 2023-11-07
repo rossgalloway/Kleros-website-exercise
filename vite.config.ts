@@ -4,13 +4,18 @@ import { defineConfig } from 'vite'
 // https://vitejs.dev/config/
 export default defineConfig({
   define: {
-    global: 'globalThis',
+    global: 'globalThis'
   },
   resolve: {
     alias: {
       process: 'process/browser',
-      util: 'util',
-    },
+      util: 'util'
+    }
   },
-  plugins: [react()],
+  plugins: [react()]
+  // build: {
+  //   rollupOptions: {
+  //     external: ['@safe-globalThis/safe-apps-provider']
+  //   }
+  // }
 })

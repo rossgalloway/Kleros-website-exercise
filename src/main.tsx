@@ -17,7 +17,11 @@ import { SendWidgetProvider } from './components/sendWidget/sendWidgetContext'
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <WagmiConfig config={config}>
-      <RainbowKitProvider chains={chains} modalSize="compact">
+      <RainbowKitProvider
+        chains={chains}
+        modalSize="compact"
+        showRecentTransactions={true}
+      >
         <TokenProvider>
           <SendWidgetProvider>
             <Theme accentColor="gray" radius="full">

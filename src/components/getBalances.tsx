@@ -14,7 +14,7 @@ export function GetBalances() {
     listTokens,
     setListTokens
   } = useTokens()
-  const { showSuccessToast, showErrorToast, showInfoToast } =
+  const { showErrorToast, showInfoToast, showBalanceSuccessToast } =
     useTransactionToast()
   const { selectedToken, setSelectedToken } = useSendWidgetContext()
 
@@ -75,8 +75,8 @@ export function GetBalances() {
       })
       setListTokens(updatedListTokens)
       if (updatedListTokens.length > 0) {
-        showSuccessToast('Balances updated')
-        console.log('updated Balance Values: ', updatedListTokens)
+        showBalanceSuccessToast('Balances updated')
+        // console.log('updated Balance Values: ', updatedListTokens)
         setRetrievedWalletBalances(true)
         setSelectedToken(updatedListTokens[0])
       } else if (!selectedToken) {

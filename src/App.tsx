@@ -8,10 +8,26 @@ import Header from './components/header'
 import SendWidget from './components/sendWidget'
 import Footer from './components/footer'
 import { useTokens } from './contexts/tokenContext'
+import {
+  useFlushSendWidget,
+  useFlushWalletChange
+} from './components/sendWidget/sendWidgetHooks'
 
 export function App() {
-  const { isConnected } = useAccount()
-  const { retrievedWalletBalances, retrievedBadgeTokens } = useTokens()
+  const { isConnected, address } = useAccount()
+  const {
+    retrievedWalletBalances,
+    setRetrievedWalletBalances,
+    retrievedBadgeTokens
+  } = useTokens()
+
+  const prevAddress = React.useRef(address)
+  if (prevAddress.current !== address) {
+    setRetrievedWalletBalances(false)
+    prevAddress.current = address
+  }
+  useFlushSendWidget()
+  useFlushWalletChange()
 
   return (
     <>
@@ -30,7 +46,9 @@ export function App() {
           direction="column"
         >
           {!retrievedBadgeTokens && <QueryKlerosTokens />}
-          {isConnected && !retrievedWalletBalances && <GetBalances />}
+          {isConnected && !retrievedWalletBalances && retrievedBadgeTokens && (
+            <GetBalances />
+          )}
           <SendWidget />
         </Flex>
         <Footer />

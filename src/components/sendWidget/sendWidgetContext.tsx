@@ -40,7 +40,7 @@ export const SendWidgetProvider: React.FC<SendWidgetProviderProps> = ({
   const [addressInputValue, setAddressInputValue] = useState('')
   const [isValidAddress, setIsValidAddress] = useState(false)
   const [isValidENS, setIsValidENS] = useState(false)
-  const [validAddress, setValidAddress] = useState<Address>('0x0000') //check this default value
+  const [validAddress, setValidAddress] = useState<Address>('0x000') //check this default value
   const [isSufficientBalance, setIsSufficientBalance] = useState(false)
 
   return (

@@ -10,7 +10,7 @@ export function QueryKlerosTokens() {
   const [tokenIds, setTokenIds] = useState<readonly Address[]>([])
   const zeroAddress = '0x0000000000000000000000000000000000000000'
   const t2crAddr = '0xebcf3bca271b26ae4b162ba560e243055af0e679'
-  const { showSuccessToast, showErrorToast, showInfoToast } =
+  const { showBadgeSuccessToast, showErrorToast, showInfoToast } =
     useTransactionToast()
 
   const filter = [
@@ -77,14 +77,14 @@ export function QueryKlerosTokens() {
   useEffect(() => {
     if (badgeData) {
       setBadgeAddresses(badgeData)
-      console.log('Addresses with badge: ', badgeData)
+      // console.log('Addresses with badge: ', badgeData)
     }
   }, [badgeData])
 
   useEffect(() => {
     if (tokenIdsData) {
       setTokenIds(tokenIdsData)
-      console.log('Token IDs: ', tokenIdsData)
+      // console.log('Token IDs: ', tokenIdsData)
     }
   }, [tokenIdsData])
 
@@ -97,14 +97,14 @@ export function QueryKlerosTokens() {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       setTokenContractConfigs(contractConfigs)
-      console.log('Token Contract Configs: ', contractConfigs)
+      // console.log('Token Contract Configs: ', contractConfigs)
       const updatedListTokens = [ETHData, ...tokensData]
       setListTokens(updatedListTokens)
       if (contractConfigs.length > 0) {
         setRetrievedBadgeTokens(true)
-        showSuccessToast('retrieved badge tokens')
+        showBadgeSuccessToast('retrieved badge tokens')
       }
-      console.log('Listed Tokens: ', updatedListTokens)
+      // console.log('Listed Tokens: ', updatedListTokens)
     }
   }, [tokensData])
 

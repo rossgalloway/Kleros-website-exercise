@@ -5,7 +5,6 @@ import { AddressInputBox } from './AddressInputBox'
 import { SendButton } from './SendButton'
 import {
   useCheckSufficientBalance,
-  useFlushSendWidget,
   useTokenQtyReset,
   useValidateAddress,
   useCheckEnsAddress
@@ -16,7 +15,6 @@ export function SendWidget() {
   useCheckEnsAddress()
   useTokenQtyReset()
   useCheckSufficientBalance()
-  useFlushSendWidget()
 
   return (
     <Flex
@@ -35,9 +33,6 @@ export function SendWidget() {
         <TokenInputBox />
         <AddressInputBox />
       </Flex>
-      {/* <Text>{Number(selectedToken.balance)}</Text>
-      <Text>{Number(formattedTokenQty)}</Text>
-      <Text>{addressInputValue}</Text> */}
       <SendButton />
     </Flex>
   )

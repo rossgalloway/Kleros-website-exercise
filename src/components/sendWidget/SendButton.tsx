@@ -8,7 +8,10 @@ import {
   useSendTransaction,
   useWaitForTransaction
 } from 'wagmi'
-import { useConnectModal } from '@rainbow-me/rainbowkit'
+import {
+  useConnectModal,
+  useAddRecentTransaction
+} from '@rainbow-me/rainbowkit'
 import { useSendWidgetContext } from './sendWidgetContext'
 import { useTransactionToast } from '../../hooks/useToast'
 import { stringify } from 'viem'
@@ -16,6 +19,7 @@ import { stringify } from 'viem'
 export function SendButton() {
   const { isConnected } = useAccount()
   const { openConnectModal } = useConnectModal()
+  const addRecentTransaction = useAddRecentTransaction()
   const {
     selectedToken,
     formattedTokenQty,
@@ -29,6 +33,10 @@ export function SendButton() {
   const handleERC20SendClick = () => {
     writeErc20Transfer({
       args: [validAddress, formattedTokenQty]
+    })
+    addRecentTransaction({
+      hash: String(dataErc20Transfer?.hash),
+      description: 'Send ERC-20 transaction'
     })
   }
 
@@ -110,7 +118,7 @@ export function SendButton() {
             selectedToken.ticker !== 'ETH' ? (
               <Button
                 className="button-main"
-                color="green"
+                color="blue"
                 size="4"
                 onClick={handleERC20SendClick}
               >
@@ -133,7 +141,7 @@ export function SendButton() {
           )
         ) : (
           <Button className="button-main" size="4" disabled>
-            Enter Valid Address
+            Enter Valid Address or ENS
           </Button>
         )
       ) : (

@@ -55,7 +55,10 @@ const TokenSelectorDialog = () => {
               if (!token) return null
               const { name, ticker, symbolMultihash, ID, balance, decimals } =
                 token
-              const formattedBalance = Number(balance) / 10 ** Number(decimals)
+              const formattedBalance =
+                balance === 0n
+                  ? 0
+                  : toMaxFixed(Number(balance) / 10 ** Number(decimals), 5)
               return (
                 <div
                   key={ID}
@@ -110,6 +113,16 @@ const TokenSelectorDialog = () => {
       </Dialog.Portal>
     </Dialog.Root>
   )
+}
+
+function toMaxFixed(num: number, maxDecimals: number): string {
+  const regExp = new RegExp(`^-?\\d+(?:.\\d{0,${maxDecimals}})?`)
+  const match = num.toString().match(regExp)
+  if (match) {
+    return match[0]
+  } else {
+    return num.toString()
+  }
 }
 
 export default TokenSelectorDialog

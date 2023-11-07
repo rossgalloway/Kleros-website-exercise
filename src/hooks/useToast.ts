@@ -5,6 +5,14 @@ export function useTransactionToast() {
     toast.success(message)
   }
 
+  const showBadgeSuccessToast = (message: string) => {
+    toast.success(message, { id: 'badge success' })
+  }
+
+  const showBalanceSuccessToast = (message: string) => {
+    toast.success(message, { id: 'balance success' })
+  }
+
   const showErrorToast = (message: string) => {
     toast.error(message)
   }
@@ -14,8 +22,15 @@ export function useTransactionToast() {
   }
 
   const showInfoToast = (message: string) => {
-    toast(message)
+    toast(message, { id: 'info' })
   }
 
-  return { showSuccessToast, showErrorToast, showLoadingToast, showInfoToast }
+  return {
+    showSuccessToast,
+    showErrorToast,
+    showLoadingToast,
+    showInfoToast,
+    showBadgeSuccessToast,
+    showBalanceSuccessToast
+  }
 }
