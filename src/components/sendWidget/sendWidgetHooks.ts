@@ -128,6 +128,7 @@ export const useFlushSendWidget = () => {
       setListTokens(flushedListTokens)
       setSelectedToken(flushedListTokens[0])
       setRetrievedWalletBalances(false)
+      console.log('flushed values - disconnect')
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isConnected])
@@ -137,20 +138,26 @@ export const useFlushSendWidget = () => {
  * @description this function flushes the user data when the user switches wallets
  * @dependencies `address`
  */
-export const useFlushWalletChange = () => {
+export const useFlushWalletChange = (
+  isWalletChanged: boolean,
+  setIsWalletChanged: React.Dispatch<React.SetStateAction<boolean>>
+) => {
   const { address } = useAccount()
   const { listTokens, setListTokens, setRetrievedWalletBalances } = useTokens()
   const { setAddressInputValue, setSelectedToken } = useSendWidgetContext()
 
   useEffect(() => {
     setAddressInputValue('')
-
-    const flushedListTokens: TokenDataArray = listTokens.map((token) => {
-      return { ...token, balance: 0n } as TokenData
-    })
-    setListTokens(flushedListTokens)
-    setSelectedToken(flushedListTokens[0])
-    setRetrievedWalletBalances(false)
+    if (isWalletChanged) {
+      const flushedListTokens: TokenDataArray = listTokens.map((token) => {
+        return { ...token, balance: 0n } as TokenData
+      })
+      setListTokens(flushedListTokens)
+      setSelectedToken(flushedListTokens[0])
+      setRetrievedWalletBalances(false)
+      console.log('flushed values - wallet change')
+      setIsWalletChanged(false)
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address])
 }
