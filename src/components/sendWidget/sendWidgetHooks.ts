@@ -1,10 +1,11 @@
 // sendWidgetHooks.ts
 import { useEffect } from 'react'
-import { useSendWidgetContext } from './sendWidgetContext'
 import { Address, getAddress } from 'viem'
 import { useAccount, useEnsAddress } from 'wagmi'
-import { TokenData, TokenDataArray } from '../../types/tokenListTypes'
+
 import { useTokens } from '../../contexts/tokenContext'
+import { TokenData, TokenDataArray } from '../../types/tokenListTypes'
+import { useSendWidgetContext } from './sendWidgetContext'
 
 /**
  * @description upon selecting a new token to send, this function resets the input values to 0
@@ -142,13 +143,13 @@ export const useFlushWalletChange = (
   isWalletChanged: boolean,
   setIsWalletChanged: React.Dispatch<React.SetStateAction<boolean>>
 ) => {
-  const { address } = useAccount()
   const { listTokens, setListTokens, setRetrievedWalletBalances } = useTokens()
   const { setAddressInputValue, setSelectedToken } = useSendWidgetContext()
 
   useEffect(() => {
-    setAddressInputValue('')
     if (isWalletChanged) {
+      console.log('running wallet change flush')
+      setAddressInputValue('')
       const flushedListTokens: TokenDataArray = listTokens.map((token) => {
         return { ...token, balance: 0n } as TokenData
       })
@@ -158,6 +159,5 @@ export const useFlushWalletChange = (
       console.log('flushed values - wallet change')
       setIsWalletChanged(false)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [address])
+  }, [isWalletChanged])
 }

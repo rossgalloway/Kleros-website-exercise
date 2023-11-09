@@ -1,33 +1,39 @@
-import React from 'react'
-import { useAccount } from 'wagmi'
-import { GetBalances } from './components/getBalances'
-import { QueryKlerosTokens } from './components/kleros/QueryKlerosTokens'
 import { Flex } from '@radix-ui/themes'
+import React, { useEffect, useRef, useState } from 'react'
 import { Toaster } from 'react-hot-toast'
-import Header from './components/header'
-import SendWidget from './components/sendWidget'
+import { useAccount } from 'wagmi'
+
 import Footer from './components/footer'
-import { useTokens } from './contexts/tokenContext'
+import { GetBalances } from './components/GetBalances'
+import Header from './components/header'
+import { QueryKlerosTokens } from './components/kleros/QueryKlerosTokens'
+import SendWidget from './components/sendWidget'
 import {
   useFlushSendWidget,
   useFlushWalletChange
 } from './components/sendWidget/sendWidgetHooks'
+import { useTokens } from './contexts/tokenContext'
 
 export function App() {
   const { isConnected, address } = useAccount()
+  const [isWalletChanged, setIsWalletChanged] = useState(false)
   const {
     retrievedWalletBalances,
     setRetrievedWalletBalances,
     retrievedBadgeTokens
   } = useTokens()
 
-  const prevAddress = React.useRef(address)
-  if (prevAddress.current !== address) {
-    setRetrievedWalletBalances(false)
-    prevAddress.current = address
-  }
+  const prevAddress = useRef(address)
+  useEffect(() => {
+    if (prevAddress.current !== address) {
+      setRetrievedWalletBalances(false)
+      setIsWalletChanged(true)
+      prevAddress.current = address
+    }
+  }, [address])
+
   useFlushSendWidget()
-  useFlushWalletChange()
+  useFlushWalletChange(isWalletChanged, setIsWalletChanged)
 
   return (
     <>
