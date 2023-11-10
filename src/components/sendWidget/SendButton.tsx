@@ -1,25 +1,18 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect } from 'react'
+import React from 'react'
 import { Button } from '@radix-ui/themes'
-import {
-  erc20ABI,
-  useAccount,
-  useContractWrite,
-  useSendTransaction,
-  useWaitForTransaction
-} from 'wagmi'
+import { type Address, useAccount } from 'wagmi'
 import {
   useConnectModal,
   useAddRecentTransaction
 } from '@rainbow-me/rainbowkit'
+import { TokenData } from '../../types/tokenListTypes'
 import { useSendWidgetContext } from './sendWidgetContext'
-import { useTransactionToast } from '../../hooks/useToast'
-import { stringify } from 'viem'
+import { useErc20Send, useEthSend } from './wagmiSendHooks'
 
 export function SendButton() {
   const { isConnected } = useAccount()
   const { openConnectModal } = useConnectModal()
-  const addRecentTransaction = useAddRecentTransaction()
   const {
     selectedToken,
     formattedTokenQty,
@@ -27,128 +20,126 @@ export function SendButton() {
     isSufficientBalance,
     isValidAddress
   } = useSendWidgetContext()
-  const { showSuccessToast, showErrorToast, showLoadingToast, showInfoToast } =
-    useTransactionToast()
 
-  const handleERC20SendClick = () => {
-    writeErc20Transfer({
-      args: [validAddress, formattedTokenQty]
-    })
-    addRecentTransaction({
-      hash: String(dataErc20Transfer?.hash),
-      description: 'Send ERC-20 transaction'
-    })
+  if (!isConnected) {
+    return (
+      <Button className="button-main" size="4" onClick={openConnectModal}>
+        Connect Wallet
+      </Button>
+    )
   }
 
-  const handleETHSendClick = () => {
-    sendTransaction({
-      to: validAddress,
-      value: formattedTokenQty
-      //  value: parseEther(value)
-    })
+  if (!isValidAddress) {
+    return (
+      <Button className="button-main" size="4" disabled>
+        Enter Valid Address or ENS
+      </Button>
+    )
   }
 
-  let erc20ContractConfig = {}
-  if (selectedToken) {
-    erc20ContractConfig = {
-      address: selectedToken.addr,
-      abi: erc20ABI
-    } as const
+  if (!isSufficientBalance) {
+    return (
+      <Button className="button-main" size="4" disabled>
+        Insufficient Balance
+      </Button>
+    )
   }
 
-  const {
-    write: writeErc20Transfer,
-    data: dataErc20Transfer,
-    error: ercError,
-    isLoading: ercIsLoading,
-    isError: ercIsError
-  } = useContractWrite({
-    ...erc20ContractConfig,
-    functionName: 'transfer',
-    args: [validAddress, formattedTokenQty]
-  })
-  const {
-    data: ercReceipt,
-    isLoading: ercIsPending,
-    isSuccess: ercIsSuccess
-  } = useWaitForTransaction({ hash: dataErc20Transfer?.hash })
+  const isEthereumToken = selectedToken.ticker === 'ETH'
 
-  const { data, error, isLoading, isError, sendTransaction } =
-    useSendTransaction()
-  const {
-    data: receipt,
-    isLoading: isPending,
-    isSuccess
-  } = useWaitForTransaction({ hash: data?.hash })
+  return isEthereumToken ? (
+    <EthSendButton
+      validAddress={validAddress}
+      formattedTokenQty={formattedTokenQty}
+    />
+  ) : (
+    <Erc20SendButton
+      selectedToken={selectedToken}
+      validAddress={validAddress}
+      formattedTokenQty={formattedTokenQty}
+    />
+  )
+}
 
-  useEffect(() => {
-    if (ercIsSuccess || isSuccess) {
-      showSuccessToast('Transfer successful!')
-      if (ercIsSuccess) {
-        showSuccessToast(stringify(ercReceipt, null, 2))
-      } else if (isSuccess) {
-        showSuccessToast(stringify(receipt, null, 2))
+type Erc20SendButtonProps = {
+  selectedToken: TokenData
+  validAddress: Address
+  formattedTokenQty: bigint
+}
+
+const Erc20SendButton = ({
+  selectedToken,
+  validAddress,
+  formattedTokenQty
+}: Erc20SendButtonProps) => {
+  const addRecentTransaction = useAddRecentTransaction()
+  const { writeErc20Transfer, transactionHash: ercTransactionHash } =
+    useErc20Send(selectedToken, validAddress, formattedTokenQty)
+
+  const handleERC20SendClick = async () => {
+    try {
+      await writeErc20Transfer?.()
+
+      if (ercTransactionHash?.hash) {
+        addRecentTransaction({
+          hash: String(ercTransactionHash.hash),
+          description: 'Send ERC-20 transaction'
+        })
       }
+    } catch (error) {
+      console.error('Error sending ERC-20 transaction:', error)
     }
-  }, [ercIsSuccess, isSuccess])
+  }
+  return (
+    <Button
+      className="button-main"
+      color="blue"
+      size="4"
+      onClick={handleERC20SendClick}
+    >
+      Send
+    </Button>
+  )
+}
 
-  useEffect(() => {
-    if (ercIsLoading || isLoading) {
-      showInfoToast('Check wallet to send transaction')
-    }
-  }, [ercIsLoading, isLoading])
+type EthSendButtonProps = {
+  validAddress: Address
+  formattedTokenQty: bigint
+}
 
-  useEffect(() => {
-    if (ercIsPending || isPending) {
-      showLoadingToast('Transaction processing...')
-    }
-  }, [ercIsPending, isPending])
+const EthSendButton = ({
+  validAddress,
+  formattedTokenQty
+}: EthSendButtonProps) => {
+  const { sendTransaction, transactionHash: ethTransactionHash } = useEthSend()
+  const addRecentTransaction = useAddRecentTransaction()
 
-  useEffect(() => {
-    if (ercIsError || isError) {
-      showErrorToast('Transaction failed')
+  const handleETHSendClick = async () => {
+    try {
+      await sendTransaction({
+        to: validAddress,
+        value: formattedTokenQty
+      })
+
+      if (ethTransactionHash?.hash) {
+        addRecentTransaction({
+          hash: String(ethTransactionHash.hash),
+          description: 'Send ETH transaction'
+        })
+      }
+    } catch (error) {
+      console.error('Error sending ETH transaction:', error)
     }
-  }, [ercIsError, isError, ercError, error])
+  }
 
   return (
-    <>
-      {isConnected ? (
-        isValidAddress ? (
-          isSufficientBalance ? (
-            selectedToken.ticker !== 'ETH' ? (
-              <Button
-                className="button-main"
-                color="blue"
-                size="4"
-                onClick={handleERC20SendClick}
-              >
-                Send
-              </Button>
-            ) : (
-              <Button
-                className="button-main"
-                color="blue"
-                size="4"
-                onClick={handleETHSendClick}
-              >
-                Send
-              </Button>
-            )
-          ) : (
-            <Button className="button-main" size="4" disabled>
-              Insufficient Balance
-            </Button>
-          )
-        ) : (
-          <Button className="button-main" size="4" disabled>
-            Enter Valid Address or ENS
-          </Button>
-        )
-      ) : (
-        <Button className="button-main" size="4" onClick={openConnectModal}>
-          Connect Wallet
-        </Button>
-      )}
-    </>
+    <Button
+      className="button-main"
+      color="blue"
+      size="4"
+      onClick={handleETHSendClick}
+    >
+      Send
+    </Button>
   )
 }

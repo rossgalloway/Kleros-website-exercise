@@ -1,10 +1,12 @@
 // sendWidgetHooks.ts
 import { useEffect } from 'react'
 import { Address, getAddress } from 'viem'
-import { useAccount, useEnsAddress } from 'wagmi'
+import { useAccount, useEnsAddress, useNetwork } from 'wagmi'
 
 import { useTokens } from '../../contexts/tokenContext'
 import { TokenData, TokenDataArray } from '../../types/tokenListTypes'
+import { useTransactionToast } from '../../hooks/useToast'
+import { vitalikAddress } from '../constants/tokenConstants'
 import { useSendWidgetContext } from './sendWidgetContext'
 
 /**
@@ -52,6 +54,7 @@ export const useCheckSufficientBalance = () => {
 export const useValidateAddress = () => {
   const { addressInputValue, setIsValidAddress, setValidAddress, isValidENS } =
     useSendWidgetContext()
+  // const { showErrorToast, showInfoToast } = useTransactionToast()
 
   useEffect(() => {
     try {
@@ -70,12 +73,15 @@ export const useValidateAddress = () => {
  * @description this function checks if the user-input address is a valid ENS name.
  */
 export const useCheckEnsAddress = () => {
+  const vitalik = vitalikAddress
   const {
     addressInputValue,
     setIsValidAddress,
     setValidAddress,
     setIsValidENS
   } = useSendWidgetContext()
+  const { showSuccessToast, showErrorToast } = useTransactionToast()
+  const { chain } = useNetwork()
 
   const { data, isError, isSuccess, refetch } = useEnsAddress({
     name: addressInputValue,
@@ -108,6 +114,13 @@ export const useCheckEnsAddress = () => {
     setIsValidENS,
     addressInputValue
   ])
+
+  if (chain?.id === 31337) {
+    setIsValidENS(true)
+    setIsValidAddress(true)
+    setValidAddress(vitalik as Address)
+    return
+  }
 }
 
 /**

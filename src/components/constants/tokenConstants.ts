@@ -1,3 +1,4 @@
+import { Address } from 'viem'
 import { TokenData } from '../../types/tokenListTypes'
 
 export const ETHData: TokenData = {
@@ -24,3 +25,6 @@ export const hardcodedGoerliData: TokenData[] = [
     balance: 0n
   }
 ]
+
+export const vitalikAddress: Address =
+  '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'

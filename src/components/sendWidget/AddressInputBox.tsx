@@ -1,12 +1,13 @@
 // AddressInput.tsx
 import React from 'react'
 import { Flex, Text, TextArea, Tooltip } from '@radix-ui/themes'
-import { useSendWidgetContext } from './sendWidgetContext'
 import { CheckIcon, InfoCircledIcon } from '@radix-ui/react-icons'
-import { useAccount } from 'wagmi'
+import { useAccount, useNetwork } from 'wagmi'
+import { useSendWidgetContext } from './sendWidgetContext'
 
 export function AddressInputBox() {
   const { isConnected } = useAccount()
+  const { chain } = useNetwork()
   const {
     addressInputValue,
     setAddressInputValue,
@@ -59,10 +60,24 @@ export function AddressInputBox() {
         )}
       </Flex>
       {isValidENS && isValidAddress && (
-        <Text size="1" align="center">
-          {validAddress}
+        <Text
+          size="1"
+          align="right"
+          style={{
+            fontWeight: '500',
+            color: '#717171'
+          }}
+        >
+          {chain?.id === 31337
+            ? 'Hardhat Network - No address validation or ENS'
+            : validAddress}
         </Text>
       )}
     </Flex>
   )
 }
+
+/**          style={{
+            fontWeight: '500',
+            color: '#717171'
+          }} */

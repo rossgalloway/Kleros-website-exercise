@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { type Address, useContractRead } from 'wagmi'
 
 import { useTransactionToast } from '../../hooks/useToast'
+import { useTokens } from '../../contexts/tokenContext'
 import { badgeContractConfig, tokensViewContractConfig } from './abis'
 
 const zeroAddress = '0x0000000000000000000000000000000000000000'
@@ -21,31 +22,51 @@ const filter = [
 // Custom hook
 export function useQueryBlockchain() {
   const { showErrorToast, showInfoToast } = useTransactionToast()
+  const { shouldFetchTokens, setShouldFetchTokens } = useTokens()
+
   const {
     data: badgeData,
     isError: badgeError,
-    isLoading: badgeIsLoading
+    isLoading: badgeIsLoading,
+    refetch: refetchBadgeData
   } = useContractRead({
     ...badgeContractConfig,
     functionName: 'queryAddresses',
     args: [zeroAddress, BigInt(1000), filter, true],
-    select: (data) => data?.[0]?.filter((address) => address !== zeroAddress)
+    select: (data) => data?.[0]?.filter((address) => address !== zeroAddress),
+    enabled: false
   })
+
+  useEffect(() => {
+    if (shouldFetchTokens) {
+      refetchBadgeData()
+      setShouldFetchTokens(false)
+    }
+  }, [shouldFetchTokens, refetchBadgeData])
 
   const {
     data: tokenIdsData,
     isError: tokenIdsError,
-    isLoading: tokenIdsIsLoading
+    isLoading: tokenIdsIsLoading,
+    refetch: refetchTokenIdsData
   } = useContractRead({
     ...tokensViewContractConfig,
     functionName: 'getTokensIDsForAddresses',
-    args: [t2crAddr, badgeData as Address[]]
+    args: [t2crAddr, badgeData as Address[]],
+    enabled: false
   })
+
+  useEffect(() => {
+    if (badgeData) {
+      refetchTokenIdsData()
+    }
+  }, [badgeData, refetchTokenIdsData])
 
   const {
     data: tokensData,
     isError: tokensDataError,
-    isLoading: tokensDataIsLoading
+    isLoading: tokensDataIsLoading,
+    refetch: refetchTokensData
   } = useContractRead({
     ...tokensViewContractConfig,
     functionName: 'getTokens',
@@ -57,8 +78,15 @@ export function useQueryBlockchain() {
           ...token,
           balance: 0n
         }))
-    }
+    },
+    enabled: false
   })
+
+  useEffect(() => {
+    if (tokenIdsData) {
+      refetchTokensData()
+    }
+  }, [tokenIdsData, refetchTokensData])
 
   useEffect(() => {
     if (badgeError || tokenIdsError || tokensDataError) {

@@ -21,12 +21,21 @@ export function TokenInputBox() {
   const handleTokenQtyInputChange = (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
-    const formattedValue = BigInt(
-      Number(e.target.value) * 10 ** Number(selectedToken.decimals)
-    )
-    if (isConnected) {
-      setTokenQtyInputValue(e.target.value)
-      setFormattedTokenQty(formattedValue)
+    // Parse the input value as a floating-point number
+    const inputValue = parseFloat(e.target.value)
+
+    // Convert selectedToken.decimals to a regular number
+    const decimals = Number(selectedToken.decimals)
+
+    // Convert the value to the token's smallest unit and then to BigInt
+    if (!isNaN(inputValue) && !isNaN(decimals)) {
+      const factor = Math.pow(10, decimals)
+      const formattedValue = BigInt(Math.round(inputValue * factor))
+
+      if (isConnected) {
+        setTokenQtyInputValue(e.target.value)
+        setFormattedTokenQty(formattedValue)
+      }
     }
   }
 

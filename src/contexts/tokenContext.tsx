@@ -15,6 +15,8 @@ interface TokenContextProps {
   setRetrievedWalletBalances: React.Dispatch<React.SetStateAction<boolean>>
   retrievedBadgeTokens: boolean
   setRetrievedBadgeTokens: React.Dispatch<React.SetStateAction<boolean>>
+  shouldFetchTokens: boolean
+  setShouldFetchTokens: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 // Create a context with a default value
@@ -34,6 +36,7 @@ export const TokenProvider: React.FC<TokenProviderProps> = ({ children }) => {
     useState<boolean>(false)
   const [retrievedBadgeTokens, setRetrievedBadgeTokens] =
     useState<boolean>(false)
+  const [shouldFetchTokens, setShouldFetchTokens] = useState<boolean>(true)
 
   return (
     <TokenContext.Provider
@@ -45,7 +48,9 @@ export const TokenProvider: React.FC<TokenProviderProps> = ({ children }) => {
         retrievedWalletBalances,
         setRetrievedWalletBalances,
         retrievedBadgeTokens,
-        setRetrievedBadgeTokens
+        setRetrievedBadgeTokens,
+        shouldFetchTokens,
+        setShouldFetchTokens
       }}
     >
       {children}
