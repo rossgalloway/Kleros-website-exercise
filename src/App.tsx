@@ -1,39 +1,46 @@
 import { Flex } from '@radix-ui/themes'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { Toaster } from 'react-hot-toast'
 import { useAccount } from 'wagmi'
 
 import Footer from './components/footer'
-import { GetBalances } from './components/GetBalances'
+
 import Header from './components/header'
-import { QueryKlerosTokens } from './components/kleros/QueryKlerosTokens'
 import SendWidget from './components/sendWidget'
-import {
-  useFlushSendWidget,
-  useFlushWalletChange
-} from './components/sendWidget/sendWidgetHooks'
 import { useTokens } from './contexts/tokenContext'
+import { useGetBalances } from './hooks/useGetBalances'
+import { useQueryKlerosTokens } from './hooks/useQueryKlerosTokens'
 
 export function App() {
   const { isConnected, address } = useAccount()
-  const [isWalletChanged, setIsWalletChanged] = useState(false)
   const {
     retrievedWalletBalances,
     setRetrievedWalletBalances,
-    retrievedBadgeTokens
+    retrievedBadgeTokens,
+    setRetrievedBadgeTokens
   } = useTokens()
+  const { refetchErcBalances, refetchEthBalance } = useGetBalances()
+  const { refetchBadgeData } = useQueryKlerosTokens()
+
+  if (!retrievedBadgeTokens) {
+    refetchBadgeData()
+    setRetrievedBadgeTokens(true)
+  }
+
+  if (isConnected && !retrievedWalletBalances && retrievedBadgeTokens) {
+    console.log('refetching balances')
+    refetchEthBalance()
+    refetchErcBalances()
+    setRetrievedWalletBalances(true)
+  }
 
   const prevAddress = useRef(address)
   useEffect(() => {
     if (prevAddress.current !== address) {
       setRetrievedWalletBalances(false)
-      setIsWalletChanged(true)
       prevAddress.current = address
     }
   }, [address])
-
-  useFlushSendWidget()
-  useFlushWalletChange(isWalletChanged, setIsWalletChanged)
 
   return (
     <>
@@ -51,10 +58,6 @@ export function App() {
           justify="center"
           direction="column"
         >
-          {!retrievedBadgeTokens && <QueryKlerosTokens />}
-          {isConnected && !retrievedWalletBalances && retrievedBadgeTokens && (
-            <GetBalances />
-          )}
           <SendWidget />
         </Flex>
         <Footer />

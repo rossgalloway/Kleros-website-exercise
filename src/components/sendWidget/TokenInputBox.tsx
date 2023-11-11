@@ -2,10 +2,10 @@
 import React, { useEffect, useState } from 'react'
 import { TextField, Text, Flex } from '@radix-ui/themes'
 import { useAccount } from 'wagmi'
-import TokenSelectorDialog from './TokenSelectorDialog'
-import { useSendWidgetContext } from './sendWidgetContext'
 import { useTokens } from '../../contexts/tokenContext'
 import { TokenData } from '../../types/tokenListTypes'
+import TokenSelectorDialog from './TokenSelectorDialog'
+import { useSendWidgetContext } from './sendWidgetContext'
 
 export function TokenInputBox() {
   const { isConnected } = useAccount()
@@ -21,23 +21,35 @@ export function TokenInputBox() {
   const handleTokenQtyInputChange = (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
+    const inputValue = e.target.value
+
+    // Handle the case when the input is empty
+    if (inputValue === '') {
+      setTokenQtyInputValue('')
+      setFormattedTokenQty(BigInt(0)) // or whatever your default state should be
+      return
+    }
+
     // Parse the input value as a floating-point number
-    const inputValue = parseFloat(e.target.value)
+    const numericValue = parseFloat(inputValue)
 
     // Convert selectedToken.decimals to a regular number
     const decimals = Number(selectedToken.decimals)
 
     // Convert the value to the token's smallest unit and then to BigInt
-    if (!isNaN(inputValue) && !isNaN(decimals)) {
+    if (!isNaN(numericValue) && !isNaN(decimals)) {
       const factor = Math.pow(10, decimals)
-      const formattedValue = BigInt(Math.round(inputValue * factor))
+      const formattedValue = BigInt(Math.round(numericValue * factor))
 
-      if (isConnected) {
-        setTokenQtyInputValue(e.target.value)
-        setFormattedTokenQty(formattedValue)
-      }
+      setTokenQtyInputValue(inputValue)
+      setFormattedTokenQty(formattedValue)
     }
   }
+
+  useEffect(() => {
+    setTokenQtyInputValue('')
+    setFormattedTokenQty(0n)
+  }, [selectedToken, setTokenQtyInputValue, setFormattedTokenQty])
 
   useEffect(() => {
     const handleLoad = () => {
@@ -70,20 +82,24 @@ export function TokenInputBox() {
           style={{ textAlign: 'start' }}
           value={tokenQtyInputValue}
           onChange={handleTokenQtyInputChange}
+          disabled={!isConnected}
         />
         <TokenSelectorDialog />
       </Flex>
       <Flex className="balance-info">
-        <Text
-          size="1"
-          style={{
-            fontWeight: '500',
-            color: '#717171'
-          }}
-        >
-          {'Balance: '}
-          {displayedBalance}
-        </Text>
+        {isConnected && (
+          <Text
+            size="1"
+            className="info-text"
+            // style={{
+            //   fontWeight: '500',
+            //   color: '#717171'
+            // }}
+          >
+            {'Balance: '}
+            {displayedBalance}
+          </Text>
+        )}
       </Flex>
     </Flex>
   )

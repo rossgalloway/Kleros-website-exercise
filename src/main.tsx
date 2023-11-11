@@ -4,10 +4,9 @@ import * as React from 'react'
 import * as ReactDOM from 'react-dom/client'
 import { WagmiConfig } from 'wagmi'
 
+import { Theme } from '@radix-ui/themes'
 import { App } from './App'
 import { chains, config } from './wagmi'
-
-import { Theme } from '@radix-ui/themes'
 
 import { TokenProvider } from './contexts/tokenContext'
 import '@radix-ui/themes/styles.css'
@@ -26,7 +25,6 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
           <SendWidgetProvider>
             <Theme accentColor="gray" radius="full">
               <App />
-              {/* <ThemePanel /> */}
             </Theme>
           </SendWidgetProvider>
         </TokenProvider>

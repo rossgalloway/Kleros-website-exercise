@@ -1,27 +1,9 @@
 // sendWidgetHooks.ts
 import { useEffect } from 'react'
 import { Address, getAddress } from 'viem'
-import { useAccount, useEnsAddress, useNetwork } from 'wagmi'
-
-import { useTokens } from '../../contexts/tokenContext'
-import { TokenData, TokenDataArray } from '../../types/tokenListTypes'
-import { useTransactionToast } from '../../hooks/useToast'
+import { useEnsAddress, useNetwork } from 'wagmi'
 import { vitalikAddress } from '../constants/tokenConstants'
 import { useSendWidgetContext } from './sendWidgetContext'
-
-/**
- * @description upon selecting a new token to send, this function resets the input values to 0
- * @dependencies `selectedToken`, `setTokenQtyInputValue`, `setFormattedTokenQty`
- */
-export const useTokenQtyReset = () => {
-  const { selectedToken, setTokenQtyInputValue, setFormattedTokenQty } =
-    useSendWidgetContext()
-
-  useEffect(() => {
-    setTokenQtyInputValue('')
-    setFormattedTokenQty(0n)
-  }, [selectedToken, setTokenQtyInputValue, setFormattedTokenQty])
-}
 
 /**
  * @description this function checks if the user has sufficient balance to send the selected token
@@ -80,7 +62,6 @@ export const useCheckEnsAddress = () => {
     setValidAddress,
     setIsValidENS
   } = useSendWidgetContext()
-  const { showSuccessToast, showErrorToast } = useTransactionToast()
   const { chain } = useNetwork()
 
   const { data, isError, isSuccess, refetch } = useEnsAddress({
@@ -121,56 +102,4 @@ export const useCheckEnsAddress = () => {
     setValidAddress(vitalik as Address)
     return
   }
-}
-
-/**
- * @description this function flushes the user data when the user disconnects from the wallet
- * @dependencies `isConnected`
- */
-export const useFlushSendWidget = () => {
-  const { isConnected } = useAccount()
-  const { listTokens, setListTokens, setRetrievedWalletBalances } = useTokens()
-  const { setAddressInputValue, setSelectedToken } = useSendWidgetContext()
-
-  useEffect(() => {
-    setAddressInputValue('')
-
-    if (isConnected === false && listTokens) {
-      const flushedListTokens: TokenDataArray = listTokens.map((token) => {
-        return { ...token, balance: 0n } as TokenData
-      })
-      setListTokens(flushedListTokens)
-      setSelectedToken(flushedListTokens[0])
-      setRetrievedWalletBalances(false)
-      console.log('flushed values - disconnect')
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isConnected])
-}
-
-/**
- * @description this function flushes the user data when the user switches wallets
- * @dependencies `address`
- */
-export const useFlushWalletChange = (
-  isWalletChanged: boolean,
-  setIsWalletChanged: React.Dispatch<React.SetStateAction<boolean>>
-) => {
-  const { listTokens, setListTokens, setRetrievedWalletBalances } = useTokens()
-  const { setAddressInputValue, setSelectedToken } = useSendWidgetContext()
-
-  useEffect(() => {
-    if (isWalletChanged) {
-      console.log('running wallet change flush')
-      setAddressInputValue('')
-      const flushedListTokens: TokenDataArray = listTokens.map((token) => {
-        return { ...token, balance: 0n } as TokenData
-      })
-      setListTokens(flushedListTokens)
-      setSelectedToken(flushedListTokens[0])
-      setRetrievedWalletBalances(false)
-      console.log('flushed values - wallet change')
-      setIsWalletChanged(false)
-    }
-  }, [isWalletChanged])
 }

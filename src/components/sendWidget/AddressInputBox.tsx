@@ -1,5 +1,5 @@
 // AddressInput.tsx
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Flex, Text, TextArea, Tooltip } from '@radix-ui/themes'
 import { CheckIcon, InfoCircledIcon } from '@radix-ui/react-icons'
 import { useAccount, useNetwork } from 'wagmi'
@@ -19,10 +19,12 @@ export function AddressInputBox() {
   const handleAddressInputChange = (
     e: React.ChangeEvent<HTMLTextAreaElement>
   ) => {
-    if (isConnected) {
-      setAddressInputValue(e.target.value)
-    }
+    setAddressInputValue(e.target.value)
   }
+
+  useEffect(() => {
+    setAddressInputValue('')
+  }, [isConnected, setAddressInputValue])
 
   return (
     <Flex className="address-input-box" direction="column">
@@ -38,6 +40,7 @@ export function AddressInputBox() {
           value={addressInputValue}
           onChange={handleAddressInputChange}
           spellCheck="false"
+          disabled={!isConnected}
         />
 
         {addressInputValue === '' || isValidAddress === false ? (
@@ -59,25 +62,15 @@ export function AddressInputBox() {
           )
         )}
       </Flex>
-      {isValidENS && isValidAddress && (
-        <Text
-          size="1"
-          align="right"
-          style={{
-            fontWeight: '500',
-            color: '#717171'
-          }}
-        >
-          {chain?.id === 31337
-            ? 'Hardhat Network - No address validation or ENS'
-            : validAddress}
-        </Text>
-      )}
+      <div className="ens-address">
+        {isValidENS && isValidAddress && (
+          <Text size="1" align="right" className="info-text">
+            {chain?.id === 31337
+              ? 'Hardhat Network - No address validation or ENS'
+              : validAddress}
+          </Text>
+        )}
+      </div>
     </Flex>
   )
 }
-
-/**          style={{
-            fontWeight: '500',
-            color: '#717171'
-          }} */

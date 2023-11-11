@@ -5,7 +5,6 @@ import { AddressInputBox } from './AddressInputBox'
 import { SendButton } from './SendButton'
 import {
   useCheckSufficientBalance,
-  useTokenQtyReset,
   useValidateAddress,
   useCheckEnsAddress
 } from './sendWidgetHooks'
@@ -13,7 +12,6 @@ import {
 export function SendWidget() {
   useValidateAddress()
   useCheckEnsAddress()
-  useTokenQtyReset()
   useCheckSufficientBalance()
 
   return (
