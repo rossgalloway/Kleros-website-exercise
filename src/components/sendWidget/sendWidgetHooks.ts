@@ -2,7 +2,6 @@
 import { useEffect } from 'react'
 import { Address, getAddress } from 'viem'
 import { useEnsAddress, useNetwork } from 'wagmi'
-import { vitalikAddress } from '../constants/tokenConstants'
 import { useSendWidgetContext } from './sendWidgetContext'
 
 /**
@@ -55,7 +54,6 @@ export const useValidateAddress = () => {
  * @description this function checks if the user-input address is a valid ENS name.
  */
 export const useCheckEnsAddress = () => {
-  const vitalik = vitalikAddress
   const {
     addressInputValue,
     setIsValidAddress,
@@ -99,7 +97,7 @@ export const useCheckEnsAddress = () => {
   if (chain?.id === 31337) {
     setIsValidENS(true)
     setIsValidAddress(true)
-    setValidAddress(vitalik as Address)
+    setValidAddress(addressInputValue as Address)
     return
   }
 }

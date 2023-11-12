@@ -1,6 +1,7 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { type Address, useContractRead, erc20ABI } from 'wagmi'
 
+import { toast } from 'react-hot-toast'
 import { useTokens } from '../contexts/tokenContext'
 import {
   TokenContractConfig,
@@ -29,23 +30,38 @@ const filter = [
 ] as const
 
 export const useQueryKlerosTokens = () => {
-  const { showBadgeSuccessToast } = useTransactionToast()
-  const { setListTokens, setTokenContractConfigs, setRetrievedBadgeTokens } =
-    useTokens()
+  const {
+    setListTokens,
+    setTokenContractConfigs,
+    retrievedBadgeTokens,
+    setRetrievedBadgeTokens
+  } = useTokens()
 
-  const { badgeData, refetchBadgeData } = useQueryBadgeData()
-  const { tokenIdsData } = useQueryTokenIds(badgeData)
-  const { tokensData } = useGetTokensData(tokenIdsData)
+  const { badgeData, badgeError, badgeIsLoading, refetchBadgeData } =
+    useQueryBadgeData()
+  const { tokenIdsData, tokenIdsError, tokenIdsIsLoading } =
+    useQueryTokenIds(badgeData)
+  const { tokensData, tokensDataIsError, tokensDataIsLoading } =
+    useGetTokensData(tokenIdsData)
 
   useEffect(() => {
     ProcessTokensData(
       tokensData,
       setListTokens,
       setRetrievedBadgeTokens,
-      setTokenContractConfigs,
-      showBadgeSuccessToast
+      setTokenContractConfigs
     )
   }, [tokensData])
+
+  useQueryKlerosToasts(
+    badgeError,
+    badgeIsLoading,
+    tokenIdsError,
+    tokenIdsIsLoading,
+    tokensDataIsError,
+    tokensDataIsLoading,
+    retrievedBadgeTokens
+  )
 
   return { tokensData, refetchBadgeData }
 }
@@ -56,7 +72,7 @@ export const useQueryKlerosTokens = () => {
 function useQueryBadgeData() {
   const {
     data: badgeData,
-    isError: badgeError,
+    isError: badgeIsError,
     isLoading: badgeIsLoading,
     refetch: refetchBadgeData
   } = useContractRead({
@@ -67,9 +83,12 @@ function useQueryBadgeData() {
     select: (data) => data?.[0]?.filter((address) => address !== zeroAddress)
   })
 
-  useQueryKlerosToasts(badgeError, badgeIsLoading)
-
-  return { badgeData, refetchBadgeData }
+  return {
+    badgeData,
+    badgeError: badgeIsError,
+    badgeIsLoading,
+    refetchBadgeData
+  }
 }
 
 /**
@@ -91,8 +110,6 @@ const useQueryTokenIds = (badgeData: Address[] | undefined) => {
     select: (tokenIdsData) => [...tokenIdsData] //spread operator to convert to array
   })
 
-  useQueryKlerosToasts(tokenIdsError, tokenIdsIsLoading)
-
   useEffect(() => {
     if (badgeData) {
       refetchTokenIdsData()
@@ -100,7 +117,7 @@ const useQueryTokenIds = (badgeData: Address[] | undefined) => {
     }
   }, [badgeData, refetchTokenIdsData])
 
-  return { tokenIdsData }
+  return { tokenIdsData, tokenIdsIsLoading, tokenIdsError }
 }
 
 /**
@@ -111,7 +128,7 @@ const useQueryTokenIds = (badgeData: Address[] | undefined) => {
 const useGetTokensData = (tokenIdsData: Address[] | undefined) => {
   const {
     data: tokensData,
-    isError: tokensDataError,
+    isError: tokensDataIsError,
     isLoading: tokensDataIsLoading,
     refetch: refetchTokensData
   } = useContractRead({
@@ -129,8 +146,6 @@ const useGetTokensData = (tokenIdsData: Address[] | undefined) => {
     enabled: false
   })
 
-  useQueryKlerosToasts(tokensDataError, tokensDataIsLoading)
-
   useEffect(() => {
     if (tokenIdsData) {
       refetchTokensData()
@@ -138,7 +153,7 @@ const useGetTokensData = (tokenIdsData: Address[] | undefined) => {
     }
   }, [tokenIdsData, refetchTokensData])
 
-  return { tokensData }
+  return { tokensData, tokensDataIsLoading, tokensDataIsError }
 }
 
 export const ProcessTokensData = (
@@ -147,9 +162,8 @@ export const ProcessTokensData = (
   setRetrievedBadgeTokens: React.Dispatch<React.SetStateAction<boolean>>,
   setTokenContractConfigs: React.Dispatch<
     React.SetStateAction<TokenContractConfig[]>
-  >,
+  >
   // eslint-disable-next-line no-unused-vars
-  showBadgeSuccessToast: (message: string) => void
 ) => {
   if (!tokensData) return
   const contractConfigs = tokensData.map((token) => ({
@@ -162,22 +176,59 @@ export const ProcessTokensData = (
   const updatedListTokens = [ETHData, ...tokensData]
   setListTokens(updatedListTokens)
   setRetrievedBadgeTokens(true)
-  showBadgeSuccessToast('retrieved badge tokens')
 }
 
-const useQueryKlerosToasts = (isError: boolean, isLoading: boolean) => {
-  const { setRetrievedBadgeTokens } = useTokens()
-  const { showErrorToast, showInfoToast } = useTransactionToast()
-  useEffect(() => {
-    if (isError) {
-      showErrorToast('Error fetching Kleros token list')
-      setRetrievedBadgeTokens(false)
-    }
-  }, [isError, setRetrievedBadgeTokens, showErrorToast])
+const useQueryKlerosToasts = (
+  badgeError: boolean,
+  badgeIsLoading: boolean,
+  tokenIdsError: boolean,
+  tokenIdsIsLoading: boolean,
+  tokensDataError: boolean,
+  tokensDataIsLoading: boolean,
+  retrievedBadgeTokens: boolean
+) => {
+  const currentToastId = useRef('')
+  const { showErrorToast, showLoadingToast, showBadgeSuccessToast } =
+    useTransactionToast()
 
   useEffect(() => {
-    if (isLoading) {
-      showInfoToast('Fetching Kleros token list...')
+    // Dismiss the current toast when the state changes
+    if (currentToastId.current) {
+      toast.dismiss(currentToastId.current)
+      currentToastId.current = ''
     }
-  }, [isLoading, showInfoToast])
+
+    // Show loading toast if any query is loading
+    if (badgeIsLoading || tokenIdsIsLoading || tokensDataIsLoading) {
+      currentToastId.current = showLoadingToast('Fetching Kleros token list...')
+    }
+    // Show error toast if any query encounters an error
+    else if (badgeError || tokenIdsError || tokensDataError) {
+      currentToastId.current = showErrorToast(
+        'Error fetching Kleros token list'
+      )
+    }
+    // Show success toast when all data is fetched successfully
+    else if (retrievedBadgeTokens) {
+      currentToastId.current = showBadgeSuccessToast('Retrieved badge tokens')
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    badgeError,
+    badgeIsLoading,
+    tokenIdsError,
+    tokenIdsIsLoading,
+    tokensDataError,
+    tokensDataIsLoading,
+    retrievedBadgeTokens
+  ])
+
+  // Clean up the toast on unmount
+  useEffect(() => {
+    return () => {
+      if (currentToastId.current) {
+        toast.dismiss(currentToastId.current)
+      }
+    }
+  }, [])
 }

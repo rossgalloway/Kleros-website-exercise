@@ -1,5 +1,6 @@
 import { type Address, useAccount, useBalance, useContractReads } from 'wagmi'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import toast from 'react-hot-toast'
 import {
   TokenContractConfig,
   TokenData,
@@ -14,14 +15,12 @@ export function useGetBalances() {
   const { address } = useAccount()
   const {
     tokenContractConfigs,
+    retrievedWalletBalances,
     setRetrievedWalletBalances,
     listTokens,
     setListTokens
   } = useTokens()
   const { setSelectedToken } = useSendWidgetContext()
-  const { showErrorToast, showInfoToast, showBalanceSuccessToast } =
-    useTransactionToast()
-  // const [fetchCounter, setFetchCounter] = useState(0)
   const [erc20ContractConfigs, setErc20ContractConfigs] = useState<
     TokenContractConfig[]
   >([])
@@ -81,31 +80,27 @@ export function useGetBalances() {
     enabled: false
   })
 
-  useEffect(() => {
-    // if (ethBalanceIsError) showErrorToast('Error fetching ETH balance')
-    // if (ercBalanceIsError) showErrorToast('Error fetching ERC20 balance')
-    if (ethIsRefetching || ercIsRefetching)
-      showInfoToast('Fetching balances...')
-  }, [
+  useBalanceToasts(
     ethBalanceIsError,
     ercBalanceIsError,
     ethIsRefetching,
     ercIsRefetching,
-    showErrorToast,
-    showInfoToast
-  ])
+    retrievedWalletBalances
+  )
 
   useEffect(() => {
-    processBalances(
+    const updatedTokens = processBalances(
       ercBalanceData,
       ethBalanceData,
-      listTokens,
-      setListTokens,
-      setRetrievedWalletBalances,
-      setSelectedToken,
-      showBalanceSuccessToast
+      listTokens
     )
-  }, [ercBalanceData, ethBalanceData, address])
+    if (updatedTokens && updatedTokens.length > 0) {
+      setListTokens(updatedTokens as TokenDataArray)
+      setRetrievedWalletBalances(true)
+      setSelectedToken(updatedTokens[0])
+      console.log('updated tokens', updatedTokens)
+    }
+  }, [ercBalanceData, ethBalanceData])
 
   return {
     refetchEthBalance,
@@ -136,11 +131,7 @@ function createETHBalanceConfig(address: Address | undefined) {
 export function processBalances(
   ercBalanceData: ercBalanceData,
   ethBalanceData: ethBalanceData,
-  listTokens: TokenDataArray,
-  setListTokens: React.Dispatch<React.SetStateAction<TokenDataArray>>,
-  setRetrievedWalletBalances: React.Dispatch<React.SetStateAction<boolean>>,
-  setSelectedToken: React.Dispatch<React.SetStateAction<TokenData>>,
-  showBalanceSuccessToast: (message: string) => void
+  listTokens: TokenDataArray
 ) {
   if (
     ercBalanceData &&
@@ -160,12 +151,55 @@ export function processBalances(
 
         return { ...token, balance: balanceData }
       })
-    console.log('processed balances: ', updatedTokens)
-    if (updatedTokens.length > 0) {
-      setListTokens(updatedTokens as TokenDataArray)
-      setRetrievedWalletBalances(true)
-      setSelectedToken(updatedTokens[0])
-      showBalanceSuccessToast('Balances updated')
-    }
+    return updatedTokens
   }
+}
+
+const useBalanceToasts = (
+  ethBalanceIsError: boolean,
+  ercBalanceIsError: boolean,
+  ethIsRefetching: boolean,
+  ercIsRefetching: boolean,
+  retrievedWalletBalances: boolean
+) => {
+  const currentToastId = useRef('')
+  const { showErrorToast, showInfoToast, showBalanceSuccessToast } =
+    useTransactionToast()
+
+  useEffect(() => {
+    // Dismiss the current toast when the state changes
+    if (currentToastId.current) {
+      toast.dismiss(currentToastId.current)
+      currentToastId.current = ''
+    }
+
+    // Show loading toast if either balance check is loading
+    if (ethIsRefetching || ercIsRefetching) {
+      currentToastId.current = showInfoToast('Fetching balances...')
+    }
+    // Show error toast if any balance check encounters an error
+    else if (ethBalanceIsError || ercBalanceIsError) {
+      currentToastId.current = showErrorToast('Error fetching balances')
+    }
+    // Show success toast when all balances are fetched successfully
+    else if (retrievedWalletBalances) {
+      currentToastId.current = showBalanceSuccessToast('Balances updated')
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    ethBalanceIsError,
+    ercBalanceIsError,
+    ethIsRefetching,
+    ercIsRefetching,
+    retrievedWalletBalances
+  ])
+
+  // Clean up the toast on unmount
+  useEffect(() => {
+    return () => {
+      if (currentToastId.current) {
+        toast.dismiss(currentToastId.current)
+      }
+    }
+  }, [])
 }

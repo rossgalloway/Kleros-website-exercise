@@ -1,28 +1,28 @@
 import { toast } from 'react-hot-toast'
 
 export function useTransactionToast() {
-  const showSuccessToast = (message: string) => {
-    toast.success(message)
+  const showSuccessToast = (message: string, id?: string) => {
+    return toast.success(message, { id: id })
   }
 
-  const showBadgeSuccessToast = (message: string) => {
-    toast.success(message, { id: 'badge success' })
+  const showBadgeSuccessToast = (message: string, id?: string) => {
+    return toast.success(message, { id: id || 'badge success' })
   }
 
-  const showBalanceSuccessToast = (message: string) => {
-    toast.success(message, { id: 'balance success' })
+  const showBalanceSuccessToast = (message: string, id?: string) => {
+    return toast.success(message, { id: id || 'balance success' })
   }
 
-  const showErrorToast = (message: string) => {
-    toast.error(message)
+  const showErrorToast = (message: string, id?: string) => {
+    return toast.error(message, { id: id })
   }
 
-  const showLoadingToast = (message: string) => {
-    toast.loading(message, { id: 'loading' })
+  const showLoadingToast = (message: string, id?: string) => {
+    return toast.loading(message, { id: id || 'loading' })
   }
 
-  const showInfoToast = (message: string) => {
-    toast(message, { id: 'info' })
+  const showInfoToast = (message: string, id?: string) => {
+    return toast(message, { id: id || 'info' })
   }
 
   return {

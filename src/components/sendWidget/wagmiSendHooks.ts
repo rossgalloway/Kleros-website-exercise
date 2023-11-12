@@ -5,8 +5,9 @@ import {
   usePrepareContractWrite,
   erc20ABI
 } from 'wagmi'
-import { Address, TransactionReceipt, stringify } from 'viem'
-import { useEffect } from 'react'
+import { Address, TransactionReceipt } from 'viem'
+import { useEffect, useRef } from 'react'
+import { toast } from 'react-hot-toast'
 import { useTransactionToast } from '../../hooks/useToast'
 import { TokenData } from '../../types/tokenListTypes'
 
@@ -79,10 +80,10 @@ export const useErc20Send = (
   } = useWaitForTransaction({ hash: transactionHash?.hash })
 
   useSendTransactionToasts(
-    isLoading,
-    sendIsError,
-    isPending,
     isSuccess,
+    isLoading,
+    isPending,
+    sendIsError,
     TransactionIsError,
     receipt
   )
@@ -111,31 +112,43 @@ const useSendTransactionToasts = (
 ) => {
   const { showSuccessToast, showErrorToast, showLoadingToast, showInfoToast } =
     useTransactionToast()
+  const currentToastId = useRef('')
 
   useEffect(() => {
-    if (isSuccess) {
-      showSuccessToast('Transfer successful!')
-      // TODO: add a button to the toast to view on block explorer instead of this toast
-      showSuccessToast(stringify(receipt, null, 2))
+    // Dismiss the current toast when the state changes
+    if (currentToastId.current) {
+      toast.dismiss(currentToastId.current)
+      currentToastId.current = ''
     }
-  }, [isSuccess, receipt, showSuccessToast])
 
-  useEffect(() => {
     if (isLoading) {
-      showInfoToast('Check wallet to send transaction')
+      currentToastId.current = showInfoToast('Check wallet to send transaction')
+    } else if (isPending) {
+      currentToastId.current = showLoadingToast('Transaction processing...')
+    } else if (isSuccess) {
+      currentToastId.current = showSuccessToast('Transfer successful!')
+      console.log('Transaction Receipt', receipt)
+    } else if (sendIsError || transactionIsError) {
+      currentToastId.current = showErrorToast(
+        'Transaction failed - see console for info'
+      )
     }
-  }, [isLoading, showInfoToast])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    isSuccess,
+    isLoading,
+    isPending,
+    sendIsError,
+    transactionIsError,
+    receipt
+  ])
 
-  //TODO: this needs to be a promise so it goes away when the transaction is done
+  // Clean up the toast on unmount or when the component rerenders
   useEffect(() => {
-    if (isPending) {
-      showLoadingToast('Transaction processing...')
+    return () => {
+      if (currentToastId.current) {
+        toast.dismiss(currentToastId.current)
+      }
     }
-  }, [isPending, showLoadingToast])
-
-  useEffect(() => {
-    if (sendIsError || transactionIsError) {
-      showErrorToast('Transaction failed - see console for info')
-    }
-  }, [sendIsError, transactionIsError, showErrorToast])
+  }, [])
 }
