@@ -7,7 +7,6 @@ import {
   TokenDataArray
 } from '../types/tokenListTypes'
 import { useTokens } from '../contexts/tokenContext'
-import { useSendWidgetContext } from '../components/sendWidget/sendWidgetContext'
 import { ercBalanceData, ethBalanceData } from '../types/ethCallTypes'
 import { useTransactionToast } from './useToast'
 
@@ -20,7 +19,6 @@ export function useGetBalances() {
     listTokens,
     setListTokens
   } = useTokens()
-  const { setSelectedToken } = useSendWidgetContext()
   const [erc20ContractConfigs, setErc20ContractConfigs] = useState<
     TokenContractConfig[]
   >([])
@@ -46,12 +44,12 @@ export function useGetBalances() {
     refetch: refetchEthBalance
   } = useBalance({
     ...ethBalanceConfig,
-    onSuccess(data) {
-      console.log('Success', data)
+    onSuccess() {
+      console.log('fetched ETH Balance')
     },
-    onError(error) {
-      console.log('Error', error)
-    },
+    // onError(error) {
+    //   console.log('Error', error)
+    // },
     watch: true,
     enabled: false
   })
@@ -70,12 +68,12 @@ export function useGetBalances() {
         ...item,
         address: erc20ContractConfigs[index].address
       })),
-    onSuccess(data) {
-      console.log('Success', data)
+    onSuccess() {
+      console.log('fetched ERC20 Balances')
     },
-    onError(error) {
-      console.log('Error', error)
-    },
+    // onError(error) {
+    //   console.log('Error', error)
+    // },
     watch: true,
     enabled: false
   })
@@ -94,12 +92,13 @@ export function useGetBalances() {
       ethBalanceData,
       listTokens
     )
+    console.log('processed Balances', updatedTokens)
     if (updatedTokens && updatedTokens.length > 0) {
       setListTokens(updatedTokens as TokenDataArray)
+      console.log('updated ListTokens', listTokens)
       setRetrievedWalletBalances(true)
-      setSelectedToken(updatedTokens[0])
-      console.log('updated tokens', updatedTokens)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ercBalanceData, ethBalanceData])
 
   return {

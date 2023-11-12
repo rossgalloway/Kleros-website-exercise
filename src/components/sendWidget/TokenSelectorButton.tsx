@@ -3,7 +3,7 @@ import { forwardRef } from 'react'
 import { Button, Responsive, Text } from '@radix-ui/themes'
 import { ChevronDownIcon } from '@radix-ui/react-icons'
 import { useAccount } from 'wagmi'
-import { useSendWidgetContext } from './sendWidgetContext'
+import { useSendWidgetContext } from '../../contexts/sendWidgetContext'
 
 interface TokenSelectorButtonProps {
   size?: Responsive<'1' | '2' | '3' | '4'>

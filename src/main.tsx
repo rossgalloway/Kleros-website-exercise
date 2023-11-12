@@ -11,7 +11,7 @@ import { chains, config } from './wagmi'
 import { TokenProvider } from './contexts/tokenContext'
 import '@radix-ui/themes/styles.css'
 import './index.css'
-import { SendWidgetProvider } from './components/sendWidget/sendWidgetContext'
+import { SendWidgetProvider } from './contexts/sendWidgetContext'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

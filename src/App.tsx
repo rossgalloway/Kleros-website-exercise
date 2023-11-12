@@ -1,10 +1,10 @@
+// src/App.tsx
 import { Flex } from '@radix-ui/themes'
 import React, { useEffect, useRef } from 'react'
 import { Toaster } from 'react-hot-toast'
 import { useAccount } from 'wagmi'
 
 import Footer from './components/footer'
-
 import Header from './components/header'
 import SendWidget from './components/sendWidget'
 import { useTokens } from './contexts/tokenContext'
@@ -22,17 +22,27 @@ export function App() {
   const { refetchErcBalances, refetchEthBalance } = useGetBalances()
   const { refetchBadgeData } = useQueryKlerosTokens()
 
-  if (!retrievedBadgeTokens) {
-    refetchBadgeData()
-    setRetrievedBadgeTokens(true)
-  }
+  useEffect(() => {
+    if (!retrievedBadgeTokens) {
+      refetchBadgeData()
+      setRetrievedBadgeTokens(true)
+    }
+  }, [retrievedBadgeTokens, refetchBadgeData, setRetrievedBadgeTokens])
 
-  if (isConnected && !retrievedWalletBalances && retrievedBadgeTokens) {
-    console.log('refetching balances')
-    refetchEthBalance()
-    refetchErcBalances()
-    setRetrievedWalletBalances(true)
-  }
+  useEffect(() => {
+    if (isConnected && !retrievedWalletBalances && retrievedBadgeTokens) {
+      refetchEthBalance()
+      refetchErcBalances()
+      setRetrievedWalletBalances(true)
+    }
+  }, [
+    isConnected,
+    retrievedWalletBalances,
+    retrievedBadgeTokens,
+    refetchEthBalance,
+    refetchErcBalances,
+    setRetrievedWalletBalances
+  ])
 
   const prevAddress = useRef(address)
   useEffect(() => {
@@ -40,7 +50,7 @@ export function App() {
       setRetrievedWalletBalances(false)
       prevAddress.current = address
     }
-  }, [address])
+  }, [address, setRetrievedWalletBalances])
 
   return (
     <>

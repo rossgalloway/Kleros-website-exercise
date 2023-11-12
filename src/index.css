@@ -11,7 +11,6 @@ body {
 .app-container {
   width: 100%;
   height: 100vh;
-  /* height: 100%; */
   background: #eeeeee;
 }
 
@@ -24,18 +23,6 @@ body {
   padding-bottom: 4px;
   border-bottom: 1px solid #c26d6d;
   justify-content: space-between;
-  overflow: visible;
-}
-
-.footer {
-  align-self: stretch;
-  height: 60px;
-  padding-left: 64px;
-  padding-right: 64px;
-  padding-top: 4px;
-  padding-bottom: 4px;
-  /* border-top: 1px solid #c26d6d; */
-  justify-content: center;
   overflow: visible;
 }
 
@@ -101,6 +88,14 @@ body {
 
 .token-input-element {
   width: 100%;
+}
+
+.validation-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 30px;
+  height: 40px;
 }
 
 .balance-info {
@@ -199,4 +194,46 @@ pre {
   flex-direction: column;
   align-items: center;
   width: 100%;
+}
+
+/* footer */
+
+.footer {
+  align-self: stretch;
+  height: 60px;
+  padding-left: 64px;
+  padding-right: 64px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  /* border-top: 1px solid #c26d6d; */
+  justify-content: center;
+  overflow: visible;
+}
+
+.footer-button {
+  cursor: pointer;
+}
+
+.footer-button:hover .footer-icon {
+  transform: scale(1.2);
+}
+
+.footer-icon {
+  transition: transform 0.3s;
+  color: black;
+  width: 20px;
+  height: 20px;
+}
+
+.spin {
+  animation: spin 1s linear;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }

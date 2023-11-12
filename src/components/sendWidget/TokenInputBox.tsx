@@ -2,10 +2,12 @@
 import React, { useEffect, useState } from 'react'
 import { TextField, Text, Flex } from '@radix-ui/themes'
 import { useAccount } from 'wagmi'
-import { useTokens } from '../../contexts/tokenContext'
-import { TokenData } from '../../types/tokenListTypes'
+// import { useTokens } from '../../contexts/tokenContext'
+import { TokenData, TokenDataArray } from '../../types/tokenListTypes'
 import TokenSelectorDialog from './TokenSelectorDialog'
-import { useSendWidgetContext } from './sendWidgetContext'
+import { useSendWidgetContext } from '../../contexts/sendWidgetContext'
+import { useCheckSufficientBalance } from '../../hooks/sendWidgetHooks'
+import { useTokens } from '../../contexts/tokenContext'
 
 export function TokenInputBox() {
   const { isConnected } = useAccount()
@@ -15,8 +17,10 @@ export function TokenInputBox() {
     setFormattedTokenQty,
     selectedToken
   } = useSendWidgetContext()
-  const { listTokens, retrievedWalletBalances } = useTokens()
-  const [displayedBalance, setDisplayedBalance] = useState(0)
+  useCheckSufficientBalance()
+  console.log('selectedToken: ', selectedToken)
+
+  const { displayedBalance } = useTokenInputLogic()
 
   const handleTokenQtyInputChange = (
     e: React.ChangeEvent<HTMLInputElement>
@@ -30,13 +34,9 @@ export function TokenInputBox() {
       return
     }
 
-    // Parse the input value as a floating-point number
     const numericValue = parseFloat(inputValue)
-
-    // Convert selectedToken.decimals to a regular number
     const decimals = Number(selectedToken.decimals)
 
-    // Convert the value to the token's smallest unit and then to BigInt
     if (!isNaN(numericValue) && !isNaN(decimals)) {
       const factor = Math.pow(10, decimals)
       const formattedValue = BigInt(Math.round(numericValue * factor))
@@ -45,29 +45,6 @@ export function TokenInputBox() {
       setFormattedTokenQty(formattedValue)
     }
   }
-
-  useEffect(() => {
-    setTokenQtyInputValue('')
-    setFormattedTokenQty(0n)
-  }, [selectedToken, setTokenQtyInputValue, setFormattedTokenQty])
-
-  useEffect(() => {
-    const handleLoad = () => {
-      const formattedValue = formatTokenBalance(selectedToken)
-      setDisplayedBalance(formattedValue)
-    }
-
-    // Run the handler right away in case the component mounts after the load event
-    handleLoad()
-
-    // Set up the event listener for future page loads
-    window.addEventListener('load', handleLoad)
-
-    // Make sure to remove the event listener when the component unmounts
-    return () => {
-      window.removeEventListener('load', handleLoad)
-    }
-  }, [retrievedWalletBalances, selectedToken, listTokens])
 
   return (
     <Flex className="token-input-box" direction="column" gap="3">
@@ -88,34 +65,46 @@ export function TokenInputBox() {
       </Flex>
       <Flex className="balance-info">
         {isConnected && (
-          <Text
-            size="1"
-            className="info-text"
-            // style={{
-            //   fontWeight: '500',
-            //   color: '#717171'
-            // }}
-          >
+          <Text size="1" className="info-text">
             {'Balance: '}
             {displayedBalance}
           </Text>
+          /*TODO: add send max button here*/
         )}
       </Flex>
     </Flex>
   )
 }
 
-function formatTokenBalance(selectedToken: TokenData) {
-  let formattedValue: number
+export function useTokenInputLogic() {
+  const { selectedToken } = useSendWidgetContext()
+  const { listTokens, retrievedWalletBalances } = useTokens()
+  const [displayedBalance, setDisplayedBalance] = useState(0)
+
+  useEffect(() => {
+    const formattedValue = formatTokenBalance(selectedToken, listTokens)
+    setDisplayedBalance(formattedValue)
+  }, [retrievedWalletBalances, selectedToken, listTokens])
+
+  return { displayedBalance }
+}
+
+function formatTokenBalance(
+  selectedToken: TokenData,
+  listTokens: TokenDataArray
+) {
+  let formattedValue = 0
   if (selectedToken) {
-    formattedValue = Number(
-      (
-        Number(selectedToken.balance) /
-        10 ** Number(selectedToken.decimals)
-      ).toFixed(5)
+    const token = listTokens.find(
+      (t) => t !== undefined && t.addr === selectedToken.addr
     )
-  } else {
-    formattedValue = 0
+    if (token && token.balance) {
+      formattedValue = Number(
+        (Number(token.balance) / Math.pow(10, Number(token.decimals))).toFixed(
+          5
+        )
+      )
+    }
   }
   return formattedValue
 }

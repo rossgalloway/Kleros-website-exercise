@@ -3,17 +3,8 @@ import { Flex } from '@radix-ui/themes'
 import { TokenInputBox } from './TokenInputBox'
 import { AddressInputBox } from './AddressInputBox'
 import { SendButton } from './SendButton'
-import {
-  useCheckSufficientBalance,
-  useValidateAddress,
-  useCheckEnsAddress
-} from './sendWidgetHooks'
 
 export function SendWidget() {
-  useValidateAddress()
-  useCheckEnsAddress()
-  useCheckSufficientBalance()
-
   return (
     <Flex
       className="sendWidget"

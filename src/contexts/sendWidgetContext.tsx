@@ -1,7 +1,7 @@
 // sendWidgetContext.tsx
 import React, { createContext, useState, useContext, ReactNode } from 'react'
 import { type Address } from 'wagmi'
-import { TokenData } from '../../types/tokenListTypes'
+import { TokenData } from '../types/tokenListTypes'
 import { ETHData } from '../constants/tokenConstants'
 
 interface SendWidgetContextType {

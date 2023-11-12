@@ -2,7 +2,7 @@
 import { useEffect } from 'react'
 import { Address, getAddress } from 'viem'
 import { useEnsAddress, useNetwork } from 'wagmi'
-import { useSendWidgetContext } from './sendWidgetContext'
+import { useSendWidgetContext } from '../contexts/sendWidgetContext'
 
 /**
  * @description this function checks if the user has sufficient balance to send the selected token
@@ -62,7 +62,7 @@ export const useCheckEnsAddress = () => {
   } = useSendWidgetContext()
   const { chain } = useNetwork()
 
-  const { data, isError, isSuccess, refetch } = useEnsAddress({
+  const { data, refetch } = useEnsAddress({
     name: addressInputValue,
     enabled: false
   })
@@ -84,20 +84,20 @@ export const useCheckEnsAddress = () => {
       setIsValidAddress(true)
       setValidAddress(data as Address)
     }
+  }, [data, setIsValidAddress, setValidAddress, setIsValidENS])
+
+  useEffect(() => {
+    if (chain?.id === 31337) {
+      setIsValidENS(true)
+      setIsValidAddress(true)
+      setValidAddress(addressInputValue as Address)
+      return
+    }
   }, [
-    data,
-    isError,
-    isSuccess,
+    chain,
     setIsValidAddress,
     setValidAddress,
     setIsValidENS,
     addressInputValue
   ])
-
-  if (chain?.id === 31337) {
-    setIsValidENS(true)
-    setIsValidAddress(true)
-    setValidAddress(addressInputValue as Address)
-    return
-  }
 }

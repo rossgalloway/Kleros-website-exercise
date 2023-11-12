@@ -8,11 +8,11 @@ import {
   TokenData,
   TokenDataArray
 } from '../types/tokenListTypes'
-import { ETHData } from '../components/constants/tokenConstants'
+import { ETHData } from '../constants/tokenConstants'
 import {
   badgeContractConfig,
   tokensViewContractConfig
-} from '../components/constants/klerosAbis'
+} from '../constants/klerosAbis'
 import { useTransactionToast } from './useToast'
 
 const zeroAddress = '0x0000000000000000000000000000000000000000'
@@ -28,6 +28,8 @@ const filter = [
   false, // Include token if caller is the author of a pending request.
   false // Include token if caller is the challenger of a pending request.
 ] as const
+
+//TODO: remove toast error fetching tokens when disconnecting
 
 export const useQueryKlerosTokens = () => {
   const {
@@ -51,6 +53,7 @@ export const useQueryKlerosTokens = () => {
       setRetrievedBadgeTokens,
       setTokenContractConfigs
     )
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tokensData])
 
   useQueryKlerosToasts(
@@ -81,6 +84,9 @@ function useQueryBadgeData() {
     enabled: false,
     args: [zeroAddress, BigInt(1000), filter, true],
     select: (data) => data?.[0]?.filter((address) => address !== zeroAddress)
+    // onSuccess() {
+    //   console.log('refetched badgeData')
+    // }
   })
 
   return {
@@ -165,13 +171,13 @@ export const ProcessTokensData = (
   >
   // eslint-disable-next-line no-unused-vars
 ) => {
+  console.log('Processing tokens data')
   if (!tokensData) return
   const contractConfigs = tokensData.map((token) => ({
     address: token.addr,
     abi: erc20ABI
   }))
   if (contractConfigs.length === 0) return
-  console.log('processing Kleros Tokens')
   setTokenContractConfigs(contractConfigs as TokenContractConfig[])
   const updatedListTokens = [ETHData, ...tokensData]
   setListTokens(updatedListTokens)

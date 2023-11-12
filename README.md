@@ -19,5 +19,5 @@ variables to send to local storage
 
 - selectedToken
 - tokenQtyInputValue
-- displayedBalance
 - addressInputValue
+- listTokens

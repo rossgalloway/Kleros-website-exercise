@@ -8,7 +8,7 @@ import Spinner from 'react-spinkit'
 import TokenSelectorButton from './TokenSelectorButton'
 
 import { useTokens } from '../../contexts/tokenContext'
-import { useSendWidgetContext } from './sendWidgetContext'
+import { useSendWidgetContext } from '../../contexts/sendWidgetContext'
 
 import { type TokenData } from '../../types/tokenListTypes'
 import './TokenSelectorDialog.css'

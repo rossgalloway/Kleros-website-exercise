@@ -8,8 +8,8 @@ import {
 import { Address, TransactionReceipt } from 'viem'
 import { useEffect, useRef } from 'react'
 import { toast } from 'react-hot-toast'
-import { useTransactionToast } from '../../hooks/useToast'
-import { TokenData } from '../../types/tokenListTypes'
+import { TokenData } from '../types/tokenListTypes'
+import { useTransactionToast } from './useToast'
 
 export const useEthSend = () => {
   const {

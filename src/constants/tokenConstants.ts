@@ -1,5 +1,5 @@
 import { Address } from 'viem'
-import { TokenData } from '../../types/tokenListTypes'
+import { TokenData } from '../types/tokenListTypes'
 
 export const ETHData: TokenData = {
   ID: 'null',

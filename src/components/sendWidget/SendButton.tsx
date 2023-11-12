@@ -7,8 +7,8 @@ import {
   useAddRecentTransaction
 } from '@rainbow-me/rainbowkit'
 import { TokenData } from '../../types/tokenListTypes'
-import { useSendWidgetContext } from './sendWidgetContext'
-import { useErc20Send, useEthSend } from './wagmiSendHooks'
+import { useSendWidgetContext } from '../../contexts/sendWidgetContext'
+import { useErc20Send, useEthSend } from '../../hooks/wagmiSendHooks'
 
 export function SendButton() {
   const { isConnected } = useAccount()

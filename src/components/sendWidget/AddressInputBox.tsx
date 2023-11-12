@@ -3,7 +3,11 @@ import React, { useEffect } from 'react'
 import { Flex, Text, TextArea, Tooltip } from '@radix-ui/themes'
 import { CheckIcon, InfoCircledIcon } from '@radix-ui/react-icons'
 import { useAccount, useNetwork } from 'wagmi'
-import { useSendWidgetContext } from './sendWidgetContext'
+import { useSendWidgetContext } from '../../contexts/sendWidgetContext'
+import {
+  useValidateAddress,
+  useCheckEnsAddress
+} from '../../hooks/sendWidgetHooks'
 
 export function AddressInputBox() {
   const { isConnected } = useAccount()
@@ -15,6 +19,8 @@ export function AddressInputBox() {
     validAddress,
     isValidENS
   } = useSendWidgetContext()
+  useValidateAddress()
+  useCheckEnsAddress()
 
   const handleAddressInputChange = (
     e: React.ChangeEvent<HTMLTextAreaElement>
@@ -28,10 +34,8 @@ export function AddressInputBox() {
 
   return (
     <Flex className="address-input-box" direction="column">
-      <Flex direction="row" gap="3">
-        <Text className="mini-title" style={{ paddingTop: '5px' }}>
-          To:
-        </Text>
+      <Flex direction="row">
+        <Text className="mini-title">To:</Text>
         <TextArea
           className="address-input-text"
           size="3"
@@ -42,25 +46,17 @@ export function AddressInputBox() {
           spellCheck="false"
           disabled={!isConnected}
         />
-
-        {addressInputValue === '' || isValidAddress === false ? (
-          <Tooltip content="Please enter a valid address or ENS name">
-            <InfoCircledIcon
-              width={'30px'}
-              height={'30px'}
-              style={{ paddingTop: '5px' }}
-            />
-          </Tooltip>
-        ) : (
-          isValidAddress === true && (
-            <CheckIcon
-              color="green"
-              width={'30px'}
-              height={'30px'}
-              style={{ paddingTop: '5px' }}
-            />
-          )
-        )}
+        <div className="validation-container">
+          {addressInputValue === '' || isValidAddress === false ? (
+            <Tooltip content="Please enter a valid address or ENS name">
+              <InfoCircledIcon width={'15px'} height={'15px'} />
+            </Tooltip>
+          ) : (
+            isValidAddress && (
+              <CheckIcon color="green" width={'25px'} height={'25px'} />
+            )
+          )}
+        </div>
       </Flex>
       <div className="ens-address">
         {isValidENS && isValidAddress && (
