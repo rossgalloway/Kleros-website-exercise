@@ -1,10 +1,20 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react'
+import React, {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useEffect
+} from 'react'
 import {
   type TokenDataArray,
   TokenContractConfig
 } from '../types/tokenListTypes'
+import {
+  serializeWithBigInt,
+  deserializeWithBigInt
+} from '../utils/serializeBigInt'
 
-interface TokenContextProps {
+interface DappContextProps {
   listTokens: TokenDataArray
   setListTokens: React.Dispatch<React.SetStateAction<TokenDataArray>>
   tokenContractConfigs: TokenContractConfig[]
@@ -15,20 +25,30 @@ interface TokenContextProps {
   setRetrievedWalletBalances: React.Dispatch<React.SetStateAction<boolean>>
   retrievedBadgeTokens: boolean
   setRetrievedBadgeTokens: React.Dispatch<React.SetStateAction<boolean>>
-  shouldFetchTokens: boolean
-  setShouldFetchTokens: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 // Create a context with a default value
-const TokenContext = createContext<TokenContextProps | undefined>(undefined)
+const DappContext = createContext<DappContextProps | undefined>(undefined)
 
 interface TokenProviderProps {
   children: ReactNode
 }
 
 // Create a provider component
-export const TokenProvider: React.FC<TokenProviderProps> = ({ children }) => {
-  const [listTokens, setListTokens] = useState<TokenDataArray>([])
+export const DappProvider: React.FC<TokenProviderProps> = ({ children }) => {
+  const getInitialListTokens = () => {
+    const storedListTokens = localStorage.getItem('listTokens')
+    return storedListTokens
+      ? (deserializeWithBigInt(storedListTokens, [
+          'decimals',
+          'balance'
+        ]) as TokenDataArray)
+      : []
+  }
+
+  const [listTokens, setListTokens] = useState<TokenDataArray>(
+    getInitialListTokens()
+  )
   const [tokenContractConfigs, setTokenContractConfigs] = useState<
     TokenContractConfig[]
   >([])
@@ -36,10 +56,14 @@ export const TokenProvider: React.FC<TokenProviderProps> = ({ children }) => {
     useState<boolean>(false)
   const [retrievedBadgeTokens, setRetrievedBadgeTokens] =
     useState<boolean>(false)
-  const [shouldFetchTokens, setShouldFetchTokens] = useState<boolean>(true)
+
+  // Update local storage when listTokens changes
+  useEffect(() => {
+    localStorage.setItem('listTokens', serializeWithBigInt(listTokens))
+  }, [listTokens])
 
   return (
-    <TokenContext.Provider
+    <DappContext.Provider
       value={{
         listTokens,
         setListTokens,
@@ -48,19 +72,17 @@ export const TokenProvider: React.FC<TokenProviderProps> = ({ children }) => {
         retrievedWalletBalances,
         setRetrievedWalletBalances,
         retrievedBadgeTokens,
-        setRetrievedBadgeTokens,
-        shouldFetchTokens,
-        setShouldFetchTokens
+        setRetrievedBadgeTokens
       }}
     >
       {children}
-    </TokenContext.Provider>
+    </DappContext.Provider>
   )
 }
 
 // Create a custom hook to use the context
-export const useTokens = (): TokenContextProps => {
-  const context = useContext(TokenContext)
+export const useDappContext = (): DappContextProps => {
+  const context = useContext(DappContext)
   if (!context) {
     throw new Error('useTokens must be used within a TokenProvider')
   }

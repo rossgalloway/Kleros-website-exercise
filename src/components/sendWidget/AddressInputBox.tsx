@@ -1,5 +1,5 @@
 // AddressInput.tsx
-import React, { useEffect } from 'react'
+import React from 'react'
 import { Flex, Text, TextArea, Tooltip } from '@radix-ui/themes'
 import { CheckIcon, InfoCircledIcon } from '@radix-ui/react-icons'
 import { useAccount, useNetwork } from 'wagmi'
@@ -19,18 +19,14 @@ export function AddressInputBox() {
     validAddress,
     isValidENS
   } = useSendWidgetContext()
-  useValidateAddress()
   useCheckEnsAddress()
+  useValidateAddress()
 
   const handleAddressInputChange = (
     e: React.ChangeEvent<HTMLTextAreaElement>
   ) => {
     setAddressInputValue(e.target.value)
   }
-
-  useEffect(() => {
-    setAddressInputValue('')
-  }, [isConnected, setAddressInputValue])
 
   return (
     <Flex className="address-input-box" direction="column">

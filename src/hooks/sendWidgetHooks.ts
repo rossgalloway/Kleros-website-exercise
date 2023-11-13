@@ -1,45 +1,23 @@
 // sendWidgetHooks.ts
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { Address, getAddress } from 'viem'
 import { useEnsAddress, useNetwork } from 'wagmi'
 import { useSendWidgetContext } from '../contexts/sendWidgetContext'
-
-/**
- * @description this function checks if the user has sufficient balance to send the selected token
- * @dependencies `tokenQtyInputValue`
- */
-export const useCheckSufficientBalance = () => {
-  const {
-    selectedToken,
-    formattedTokenQty,
-    tokenQtyInputValue,
-    setIsSufficientBalance
-  } = useSendWidgetContext()
-
-  useEffect(() => {
-    if (selectedToken?.balance) {
-      if (formattedTokenQty > selectedToken?.balance) {
-        setIsSufficientBalance(false)
-      } else {
-        setIsSufficientBalance(true)
-      }
-    }
-  }),
-    [tokenQtyInputValue]
-}
 
 /**
  * @description this function checks if the user-input address is a valid address.
  * @dependencies `addressInputValue`
  */
 export const useValidateAddress = () => {
-  const { addressInputValue, setIsValidAddress, setValidAddress, isValidENS } =
+  const { addressInputValue, isValidENS, setIsValidAddress, setValidAddress } =
     useSendWidgetContext()
-  // const { showErrorToast, showInfoToast } = useTransactionToast()
 
   useEffect(() => {
+    if (isValidENS) {
+      setIsValidAddress(true)
+      return
+    }
     try {
-      if (isValidENS) return
       const validatedAddress = getAddress(addressInputValue)
       setIsValidAddress(true)
       setValidAddress(validatedAddress)
@@ -61,6 +39,7 @@ export const useCheckEnsAddress = () => {
     setIsValidENS
   } = useSendWidgetContext()
   const { chain } = useNetwork()
+  const initialLoadRef = useRef(true)
 
   const { data, refetch } = useEnsAddress({
     name: addressInputValue,
@@ -68,8 +47,9 @@ export const useCheckEnsAddress = () => {
   })
 
   useEffect(() => {
-    if (addressInputValue.endsWith('.eth')) {
+    if (initialLoadRef.current || addressInputValue.endsWith('.eth')) {
       refetch()
+      initialLoadRef.current = false
     }
   }, [addressInputValue, refetch])
 

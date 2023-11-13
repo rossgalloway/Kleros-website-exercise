@@ -6,7 +6,8 @@ import {
   TokenData,
   TokenDataArray
 } from '../types/tokenListTypes'
-import { useTokens } from '../contexts/tokenContext'
+import { useDappContext } from '../contexts/dAppContext'
+
 import { ercBalanceData, ethBalanceData } from '../types/ethCallTypes'
 import { useTransactionToast } from './useToast'
 
@@ -18,7 +19,7 @@ export function useGetBalances() {
     setRetrievedWalletBalances,
     listTokens,
     setListTokens
-  } = useTokens()
+  } = useDappContext()
   const [erc20ContractConfigs, setErc20ContractConfigs] = useState<
     TokenContractConfig[]
   >([])
@@ -44,9 +45,9 @@ export function useGetBalances() {
     refetch: refetchEthBalance
   } = useBalance({
     ...ethBalanceConfig,
-    onSuccess() {
-      console.log('fetched ETH Balance')
-    },
+    // onSuccess() {
+    //   console.log('fetched ETH Balance')
+    // },
     // onError(error) {
     //   console.log('Error', error)
     // },
@@ -68,9 +69,9 @@ export function useGetBalances() {
         ...item,
         address: erc20ContractConfigs[index].address
       })),
-    onSuccess() {
-      console.log('fetched ERC20 Balances')
-    },
+    // onSuccess() {
+    //   console.log('fetched ERC20 Balances')
+    // },
     // onError(error) {
     //   console.log('Error', error)
     // },
@@ -92,10 +93,10 @@ export function useGetBalances() {
       ethBalanceData,
       listTokens
     )
-    console.log('processed Balances', updatedTokens)
+    // console.log('processed Balances', updatedTokens)
     if (updatedTokens && updatedTokens.length > 0) {
       setListTokens(updatedTokens as TokenDataArray)
-      console.log('updated ListTokens', listTokens)
+      // console.log('updated ListTokens', listTokens)
       setRetrievedWalletBalances(true)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -120,7 +121,11 @@ function createContractConfigs(
 }
 
 function createETHBalanceConfig(address: Address | undefined) {
-  if (!address) return {}
+  if (!address)
+    return {
+      address: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
+      watch: false
+    }
   return {
     address,
     watch: true
@@ -150,6 +155,7 @@ export function processBalances(
 
         return { ...token, balance: balanceData }
       })
+    // console.log('complete balance processing', updatedTokens)
     return updatedTokens
   }
 }
@@ -179,6 +185,7 @@ const useBalanceToasts = (
     // Show error toast if any balance check encounters an error
     else if (ethBalanceIsError || ercBalanceIsError) {
       currentToastId.current = showErrorToast('Error fetching balances')
+      // console.log('eth: ', ethBalanceIsError, 'erc: ', ercBalanceIsError)
     }
     // Show success toast when all balances are fetched successfully
     else if (retrievedWalletBalances) {

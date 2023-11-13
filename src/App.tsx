@@ -7,7 +7,7 @@ import { useAccount } from 'wagmi'
 import Footer from './components/footer'
 import Header from './components/header'
 import SendWidget from './components/sendWidget'
-import { useTokens } from './contexts/tokenContext'
+import { useDappContext } from './contexts/dAppContext'
 import { useGetBalances } from './hooks/useGetBalances'
 import { useQueryKlerosTokens } from './hooks/useQueryKlerosTokens'
 
@@ -18,7 +18,7 @@ export function App() {
     setRetrievedWalletBalances,
     retrievedBadgeTokens,
     setRetrievedBadgeTokens
-  } = useTokens()
+  } = useDappContext()
   const { refetchErcBalances, refetchEthBalance } = useGetBalances()
   const { refetchBadgeData } = useQueryKlerosTokens()
 

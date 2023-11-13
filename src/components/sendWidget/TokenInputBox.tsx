@@ -4,47 +4,62 @@ import { TextField, Text, Flex } from '@radix-ui/themes'
 import { useAccount } from 'wagmi'
 // import { useTokens } from '../../contexts/tokenContext'
 import { TokenData, TokenDataArray } from '../../types/tokenListTypes'
-import TokenSelectorDialog from './TokenSelectorDialog'
 import { useSendWidgetContext } from '../../contexts/sendWidgetContext'
-import { useCheckSufficientBalance } from '../../hooks/sendWidgetHooks'
-import { useTokens } from '../../contexts/tokenContext'
+import { useDappContext } from '../../contexts/dAppContext'
+import TokenSelectorDialog from './TokenSelectorDialog'
 
 export function TokenInputBox() {
   const { isConnected } = useAccount()
   const {
     tokenQtyInputValue,
+    selectedToken,
+    formattedTokenQty,
     setTokenQtyInputValue,
     setFormattedTokenQty,
-    selectedToken
+    setIsValidValueInput,
+    setIsSufficientBalance
   } = useSendWidgetContext()
-  useCheckSufficientBalance()
-  console.log('selectedToken: ', selectedToken)
-
+  const { listTokens } = useDappContext()
   const { displayedBalance } = useTokenInputLogic()
 
   const handleTokenQtyInputChange = (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
     const inputValue = e.target.value
-
-    // Handle the case when the input is empty
-    if (inputValue === '') {
-      setTokenQtyInputValue('')
-      setFormattedTokenQty(BigInt(0)) // or whatever your default state should be
-      return
-    }
-
-    const numericValue = parseFloat(inputValue)
-    const decimals = Number(selectedToken.decimals)
-
-    if (!isNaN(numericValue) && !isNaN(decimals)) {
-      const factor = Math.pow(10, decimals)
-      const formattedValue = BigInt(Math.round(numericValue * factor))
-
-      setTokenQtyInputValue(inputValue)
-      setFormattedTokenQty(formattedValue)
-    }
+    validateValueInput(
+      inputValue,
+      selectedToken,
+      formattedTokenQty,
+      setTokenQtyInputValue,
+      setFormattedTokenQty,
+      setIsValidValueInput,
+      setIsSufficientBalance
+    )
   }
+
+  useEffect(() => {
+    validateValueInput(
+      tokenQtyInputValue,
+      selectedToken,
+      formattedTokenQty,
+      setTokenQtyInputValue,
+      setFormattedTokenQty,
+      setIsValidValueInput,
+      setIsSufficientBalance
+    )
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [listTokens])
+
+  useEffect(() => {
+    if (selectedToken?.balance) {
+      if (formattedTokenQty > selectedToken?.balance) {
+        setIsSufficientBalance(false)
+      } else {
+        setIsSufficientBalance(true)
+      }
+    }
+  }),
+    [tokenQtyInputValue]
 
   return (
     <Flex className="token-input-box" direction="column" gap="3">
@@ -78,7 +93,7 @@ export function TokenInputBox() {
 
 export function useTokenInputLogic() {
   const { selectedToken } = useSendWidgetContext()
-  const { listTokens, retrievedWalletBalances } = useTokens()
+  const { listTokens, retrievedWalletBalances } = useDappContext()
   const [displayedBalance, setDisplayedBalance] = useState(0)
 
   useEffect(() => {
@@ -107,4 +122,48 @@ function formatTokenBalance(
     }
   }
   return formattedValue
+}
+
+function validateValueInput(
+  inputValue: string,
+  selectedToken: TokenData,
+  formattedTokenQty: bigint,
+  setTokenQtyInputValue: React.Dispatch<React.SetStateAction<string>>,
+  setFormattedTokenQty: React.Dispatch<React.SetStateAction<bigint>>,
+  setIsValidValueInput: React.Dispatch<React.SetStateAction<boolean>>,
+  setIsSufficientBalance: React.Dispatch<React.SetStateAction<boolean>>
+) {
+  const decimals = Number(selectedToken.decimals)
+
+  // Handle the case when the input is empty
+  if (inputValue === '') {
+    setTokenQtyInputValue('')
+    setFormattedTokenQty(BigInt(0))
+    return
+  }
+
+  const numericValue = parseFloat(inputValue)
+
+  // Check if the input value is a valid number
+  if (isNaN(numericValue) || numericValue.toString() !== inputValue.trim()) {
+    setIsValidValueInput(false)
+  } else {
+    setIsValidValueInput(true)
+  }
+
+  //check if sufficient balance
+  if (!selectedToken?.balance || formattedTokenQty < selectedToken?.balance) {
+    setIsSufficientBalance(false)
+  } else {
+    setIsSufficientBalance(true)
+  }
+
+  // format value for transaction
+  if (!isNaN(numericValue) && !isNaN(decimals)) {
+    const factor = Math.pow(10, decimals)
+    const formattedValue = BigInt(Math.round(numericValue * factor))
+
+    setTokenQtyInputValue(inputValue)
+    setFormattedTokenQty(formattedValue)
+  }
 }

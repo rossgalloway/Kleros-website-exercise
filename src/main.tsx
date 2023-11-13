@@ -8,7 +8,7 @@ import { Theme } from '@radix-ui/themes'
 import { App } from './App'
 import { chains, config } from './wagmi'
 
-import { TokenProvider } from './contexts/tokenContext'
+import { DappProvider } from './contexts/dAppContext'
 import '@radix-ui/themes/styles.css'
 import './index.css'
 import { SendWidgetProvider } from './contexts/sendWidgetContext'
@@ -21,13 +21,13 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         modalSize="compact"
         showRecentTransactions={true}
       >
-        <TokenProvider>
+        <DappProvider>
           <SendWidgetProvider>
             <Theme accentColor="gray" radius="full">
               <App />
             </Theme>
           </SendWidgetProvider>
-        </TokenProvider>
+        </DappProvider>
       </RainbowKitProvider>
     </WagmiConfig>
   </React.StrictMode>

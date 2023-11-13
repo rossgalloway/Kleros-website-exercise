@@ -1,8 +1,18 @@
 // sendWidgetContext.tsx
-import React, { createContext, useState, useContext, ReactNode } from 'react'
+import React, {
+  createContext,
+  useState,
+  useContext,
+  ReactNode,
+  useEffect
+} from 'react'
 import { type Address } from 'wagmi'
 import { TokenData } from '../types/tokenListTypes'
 import { ETHData } from '../constants/tokenConstants'
+import {
+  serializeWithBigInt,
+  deserializeWithBigInt
+} from '../utils/serializeBigInt'
 
 interface SendWidgetContextType {
   selectedToken: TokenData
@@ -21,6 +31,8 @@ interface SendWidgetContextType {
   setIsSufficientBalance: React.Dispatch<React.SetStateAction<boolean>>
   isValidENS: boolean
   setIsValidENS: React.Dispatch<React.SetStateAction<boolean>>
+  isValidValueInput: boolean
+  setIsValidValueInput: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const SendWidgetContext = createContext<SendWidgetContextType | undefined>(
@@ -34,14 +46,54 @@ interface SendWidgetProviderProps {
 export const SendWidgetProvider: React.FC<SendWidgetProviderProps> = ({
   children
 }) => {
-  const [selectedToken, setSelectedToken] = useState<TokenData>(ETHData)
-  const [tokenQtyInputValue, setTokenQtyInputValue] = useState('')
+  const getInitialSelectedToken = () => {
+    const storedSelectedToken = localStorage.getItem('selectedToken')
+    return storedSelectedToken
+      ? (deserializeWithBigInt(storedSelectedToken, [
+          'decimals',
+          'balance'
+        ]) as TokenData)
+      : ETHData
+  }
+
+  const getInitialTokenQtyInputValue = () => {
+    const storedTokenQty = localStorage.getItem('tokenQtyInputValue')
+    return storedTokenQty ? storedTokenQty : ''
+  }
+
+  const getInitialAddressInputValue = () => {
+    const storedAddress = localStorage.getItem('addressInputValue')
+    return storedAddress ? storedAddress : ''
+  }
+
+  const [selectedToken, setSelectedToken] = useState<TokenData>(
+    getInitialSelectedToken()
+  )
+  const [tokenQtyInputValue, setTokenQtyInputValue] = useState<string>(
+    getInitialTokenQtyInputValue()
+  )
   const [formattedTokenQty, setFormattedTokenQty] = useState<bigint>(0n)
-  const [addressInputValue, setAddressInputValue] = useState('')
+  const [addressInputValue, setAddressInputValue] = useState<string>(
+    getInitialAddressInputValue()
+  )
   const [isValidAddress, setIsValidAddress] = useState(false)
   const [isValidENS, setIsValidENS] = useState(false)
   const [validAddress, setValidAddress] = useState<Address>('0x000') //check this default value
   const [isSufficientBalance, setIsSufficientBalance] = useState(false)
+  const [isValidValueInput, setIsValidValueInput] = useState(false)
+
+  // Update local storage on state changes
+  useEffect(() => {
+    localStorage.setItem('selectedToken', serializeWithBigInt(selectedToken))
+  }, [selectedToken])
+
+  useEffect(() => {
+    localStorage.setItem('tokenQtyInputValue', tokenQtyInputValue)
+  }, [tokenQtyInputValue])
+
+  useEffect(() => {
+    localStorage.setItem('addressInputValue', addressInputValue)
+  }, [addressInputValue])
 
   return (
     <SendWidgetContext.Provider
@@ -61,7 +113,9 @@ export const SendWidgetProvider: React.FC<SendWidgetProviderProps> = ({
         isSufficientBalance,
         setIsSufficientBalance,
         isValidENS,
-        setIsValidENS
+        setIsValidENS,
+        isValidValueInput,
+        setIsValidValueInput
       }}
     >
       {children}

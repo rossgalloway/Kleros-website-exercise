@@ -1,3 +1,5 @@
+// src/types/tokenListTypes.ts
+
 import { type Address } from 'wagmi'
 
 export type TokenDataArray = TokenData[] | undefined[]

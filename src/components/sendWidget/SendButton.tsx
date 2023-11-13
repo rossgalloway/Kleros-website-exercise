@@ -18,7 +18,8 @@ export function SendButton() {
     formattedTokenQty,
     validAddress,
     isSufficientBalance,
-    isValidAddress
+    isValidAddress,
+    isValidValueInput
   } = useSendWidgetContext()
 
   if (!isConnected) {
@@ -33,6 +34,14 @@ export function SendButton() {
     return (
       <Button className="button-main" size="4" disabled>
         Enter Valid Address or ENS
+      </Button>
+    )
+  }
+
+  if (!isValidValueInput) {
+    return (
+      <Button className="button-main" size="4" disabled>
+        Enter Valid Amount
       </Button>
     )
   }

@@ -7,14 +7,14 @@ import { Text } from '@radix-ui/themes'
 import Spinner from 'react-spinkit'
 import TokenSelectorButton from './TokenSelectorButton'
 
-import { useTokens } from '../../contexts/tokenContext'
+import { useDappContext } from '../../contexts/dAppContext'
 import { useSendWidgetContext } from '../../contexts/sendWidgetContext'
 
 import { type TokenData } from '../../types/tokenListTypes'
 import './TokenSelectorDialog.css'
 
 const TokenSelectorDialog = () => {
-  const { listTokens } = useTokens()
+  const { listTokens } = useDappContext()
   const { setSelectedToken } = useSendWidgetContext()
   const closeRef = useRef<HTMLButtonElement | null>(null)
   const [imageLoaded, setImageLoaded] = useState(false)

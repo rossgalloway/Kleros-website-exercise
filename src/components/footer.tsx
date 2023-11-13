@@ -1,13 +1,14 @@
 import React, { useState } from 'react'
 import { Flex, Tooltip } from '@radix-ui/themes'
 import { GitHubLogoIcon, UpdateIcon } from '@radix-ui/react-icons'
-import { useTokens } from '../contexts/tokenContext'
+import { useDappContext } from '../contexts/dAppContext'
 
 // TODO: update github link when repo is published
 
 function Footer() {
   const [isSpinning, setIsSpinning] = useState(false)
-  const { setRetrievedBadgeTokens, setRetrievedWalletBalances } = useTokens()
+  const { setRetrievedBadgeTokens, setRetrievedWalletBalances } =
+    useDappContext()
 
   const handleRefresh = () => {
     setIsSpinning(true)

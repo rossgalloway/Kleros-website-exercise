@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import { type Address, useContractRead, erc20ABI } from 'wagmi'
 
 import { toast } from 'react-hot-toast'
-import { useTokens } from '../contexts/tokenContext'
+import { useDappContext } from '../contexts/dAppContext'
 import {
   TokenContractConfig,
   TokenData,
@@ -37,7 +37,7 @@ export const useQueryKlerosTokens = () => {
     setTokenContractConfigs,
     retrievedBadgeTokens,
     setRetrievedBadgeTokens
-  } = useTokens()
+  } = useDappContext()
 
   const { badgeData, badgeError, badgeIsLoading, refetchBadgeData } =
     useQueryBadgeData()
@@ -119,7 +119,7 @@ const useQueryTokenIds = (badgeData: Address[] | undefined) => {
   useEffect(() => {
     if (badgeData) {
       refetchTokenIdsData()
-      console.log('refetching tokenIdsData')
+      // console.log('refetching tokenIdsData')
     }
   }, [badgeData, refetchTokenIdsData])
 
@@ -155,7 +155,7 @@ const useGetTokensData = (tokenIdsData: Address[] | undefined) => {
   useEffect(() => {
     if (tokenIdsData) {
       refetchTokensData()
-      console.log('refetching tokensData')
+      // console.log('refetching tokensData')
     }
   }, [tokenIdsData, refetchTokensData])
 
@@ -171,7 +171,7 @@ export const ProcessTokensData = (
   >
   // eslint-disable-next-line no-unused-vars
 ) => {
-  console.log('Processing tokens data')
+  // console.log('Processing tokens data')
   if (!tokensData) return
   const contractConfigs = tokensData.map((token) => ({
     address: token.addr,
