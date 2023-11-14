@@ -33,7 +33,7 @@ export function SendWidget() {
     setSelectedToken,
     selectedToken
   } = useSendWidgetContext()
-  const { listTokens } = useDappContext()
+  const { listTokens, retrievedWalletBalances } = useDappContext()
 
   useEffect(() => {
     flushInputs(
@@ -61,7 +61,7 @@ export function SendWidget() {
         }))
       }
     }
-  }, [listTokens, selectedToken, setSelectedToken])
+  }, [retrievedWalletBalances, listTokens, selectedToken, setSelectedToken])
 
   return (
     <Flex
