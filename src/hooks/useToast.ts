@@ -19,10 +19,12 @@ export function useTransactionToast() {
 
   const showLoadingToast = (message: string, id?: string) => {
     return toast.loading(message, { id: id || 'loading' })
+    // return toast.loading(message, { id: id })
   }
 
   const showInfoToast = (message: string, id?: string) => {
     return toast(message, { id: id || 'info' })
+    // return toast(message, { id: id })
   }
 
   return {

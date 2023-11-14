@@ -1,14 +1,30 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React from 'react'
+import React, { useReducer, useState } from 'react'
 import { Button } from '@radix-ui/themes'
 import { type Address, useAccount } from 'wagmi'
 import {
   useConnectModal,
   useAddRecentTransaction
 } from '@rainbow-me/rainbowkit'
-import { TokenData } from '../../types/tokenListTypes'
-import { useSendWidgetContext } from '../../contexts/sendWidgetContext'
+import { uniqueId } from 'lodash'
+import { TransactionReceipt } from 'viem'
+import { useEffect, useRef } from 'react'
+import { toast } from 'react-hot-toast'
 import { useErc20Send, useEthSend } from '../../hooks/wagmiSendHooks'
+import { useTransactionToast } from '../../hooks/useToast'
+import { useSendWidgetContext } from '../../contexts/sendWidgetContext'
+import { TokenData } from '../../types/tokenListTypes'
+
+type TransactionState = {
+  id: string
+  isSuccess: boolean
+  isLoading: boolean
+  isPending: boolean
+  sendIsError: boolean
+  transactionIsError: boolean
+  receipt: TransactionReceipt | undefined
+  transactionHash: { hash: string } | undefined
+}
 
 export function SendButton() {
   const { isConnected } = useAccount()
@@ -70,6 +86,173 @@ export function SendButton() {
   )
 }
 
+type EthSendButtonProps = {
+  validAddress: Address
+  formattedTokenQty: bigint
+}
+
+const EthSendButton = ({
+  validAddress,
+  formattedTokenQty
+}: EthSendButtonProps) => {
+  const sendTransaction = useEthSend()
+  const addRecentTransaction = useAddRecentTransaction()
+  const handleTransaction = useSendTransactionToasts()
+  const [transactionState, setTransactionState] = useState<TransactionState>()
+
+  const handleETHSendClick = () => {
+    const newTransactionState = sendTransaction({
+      to: validAddress,
+      value: formattedTokenQty
+    })
+
+    setTransactionState(newTransactionState)
+
+    handleTransaction(
+      newTransactionState.id,
+      newTransactionState.isSuccess,
+      newTransactionState.isLoading,
+      newTransactionState.isPending,
+      newTransactionState.sendIsError,
+      newTransactionState.transactionIsError,
+      newTransactionState.receipt,
+      newTransactionState.transactionHash
+    )
+  }
+
+  useEffect(() => {
+    if (transactionState?.transactionHash?.hash) {
+      addRecentTransaction({
+        hash: String(transactionState.transactionHash.hash),
+        description: 'Send ETH transaction'
+      })
+    }
+  }, [transactionState, addRecentTransaction])
+
+  return (
+    <Button
+      className="button-main"
+      color="blue"
+      size="4"
+      onClick={handleETHSendClick}
+    >
+      Send {transactionState ? transactionState.id : ''}
+    </Button>
+  )
+}
+
+type TransactionAction =
+  | { type: 'ADD'; transaction: TransactionState }
+  | { type: 'UPDATE'; index: number; transaction: Partial<TransactionState> }
+
+function transactionReducer(
+  state: TransactionState[],
+  action: TransactionAction
+): TransactionState[] {
+  switch (action.type) {
+    case 'ADD':
+      return [...state, action.transaction]
+    case 'UPDATE':
+      return state.map((transaction, index) =>
+        index === action.index
+          ? { ...transaction, ...action.transaction }
+          : transaction
+      )
+    default:
+      throw new Error()
+  }
+}
+
+const useSendTransactionToasts = () => {
+  const { showSuccessToast, showErrorToast, showLoadingToast } =
+    useTransactionToast()
+  const [transactions, dispatch] = useReducer(transactionReducer, [])
+  const [toastIds, setToastIds] = useState({}) // New state variable for toastIds
+
+  const handleTransaction = (
+    id: string,
+    isSuccess: boolean,
+    isLoading: boolean,
+    isPending: boolean,
+    sendIsError: boolean,
+    transactionIsError: boolean,
+    receipt: TransactionReceipt | undefined,
+    transactionHash: { hash: string } | undefined
+  ) => {
+    const existingTransactionIndex = transactions.findIndex(
+      (transaction) => transaction.id === id
+    )
+
+    if (existingTransactionIndex !== -1) {
+      // Update the existing transaction
+      dispatch({
+        type: 'UPDATE',
+        index: existingTransactionIndex,
+        transaction: {
+          id,
+          isSuccess,
+          isLoading,
+          isPending,
+          sendIsError,
+          transactionIsError,
+          receipt,
+          transactionHash
+        }
+      })
+    } else {
+      // Add a new transaction
+      dispatch({
+        type: 'ADD',
+        transaction: {
+          id,
+          isSuccess,
+          isLoading,
+          isPending,
+          sendIsError,
+          transactionIsError,
+          receipt,
+          transactionHash
+        }
+      })
+    }
+  }
+
+  useEffect(() => {
+    transactions.forEach((transaction) => {
+      const {
+        id,
+        isSuccess,
+        isLoading,
+        isPending,
+        sendIsError,
+        transactionIsError,
+        receipt
+      } = transaction
+      let toastId = id
+
+      if (isLoading) {
+        toastId = showLoadingToast('Check wallet to send transaction', id)
+      } else if (isPending) {
+        toastId = showLoadingToast('Transaction processing...', id)
+      } else if (isSuccess) {
+        toastId = showSuccessToast('Transfer successful!', id)
+        console.log('Transaction Receipt', receipt)
+      } else if (sendIsError || transactionIsError) {
+        toastId = showErrorToast(
+          'Transaction failed - see console for info',
+          id
+        )
+      }
+
+      // Update the transaction state with the toastId
+      setToastIds((prevToastIds) => ({ ...prevToastIds, [id]: toastId }))
+    })
+  }, [transactions])
+  console.log('transaction array: ', transactions)
+
+  return handleTransaction
+}
+
 type Erc20SendButtonProps = {
   selectedToken: TokenData
   validAddress: Address
@@ -111,44 +294,91 @@ const Erc20SendButton = ({
   )
 }
 
-type EthSendButtonProps = {
-  validAddress: Address
-  formattedTokenQty: bigint
-}
+// type transactionData = {
+//   id: string
+//   isSuccess: boolean
+//   isLoading: boolean
+//   isPending: boolean
+//   sendIsError: boolean
+//   transactionIsError: boolean
+//   receipt: TransactionReceipt | undefined
+// } | null
 
-const EthSendButton = ({
-  validAddress,
-  formattedTokenQty
-}: EthSendButtonProps) => {
-  const { sendTransaction, transactionHash: ethTransactionHash } = useEthSend()
-  const addRecentTransaction = useAddRecentTransaction()
+// const useSendTransactionToasts = () => {
+//   const { showSuccessToast, showErrorToast, showLoadingToast } =
+//     useTransactionToast()
+//   const [transactionData, setTransactionData] = useState<transactionData>(null)
 
-  const handleETHSendClick = async () => {
-    try {
-      await sendTransaction({
-        to: validAddress,
-        value: formattedTokenQty
-      })
+//   const handleTransaction = (
+//     id: string,
+//     isSuccess: boolean,
+//     isLoading: boolean,
+//     isPending: boolean,
+//     sendIsError: boolean,
+//     transactionIsError: boolean,
+//     receipt: TransactionReceipt | undefined
+//   ) => {
+//     setTransactionData({
+//       id,
+//       isSuccess,
+//       isLoading,
+//       isPending,
+//       sendIsError,
+//       transactionIsError,
+//       receipt
+//     })
+//   }
 
-      if (ethTransactionHash?.hash) {
-        addRecentTransaction({
-          hash: String(ethTransactionHash.hash),
-          description: 'Send ETH transaction'
-        })
-      }
-    } catch (error) {
-      console.error('Error sending ETH transaction:', error)
-    }
-  }
+//   useEffect(() => {
+//     console.log('transactionData Set: ', transactionData)
+//     if (transactionData) {
+//       console.log('has data')
+//       const {
+//         id,
+//         isSuccess,
+//         isLoading,
+//         isPending,
+//         sendIsError,
+//         transactionIsError,
+//         receipt
+//       } = transactionData
+//       let toastId: string
+//       console.log(
+//         'id: ',
+//         id,
+//         'isSuccess: ',
+//         isSuccess,
+//         'isLoading: ',
+//         isLoading,
+//         'isPending: ',
+//         isPending
+//       )
 
-  return (
-    <Button
-      className="button-main"
-      color="blue"
-      size="4"
-      onClick={handleETHSendClick}
-    >
-      Send
-    </Button>
-  )
-}
+//       if (isLoading) {
+//         toastId = showLoadingToast('Check wallet to send transaction', id)
+//         console.log(toastId)
+//       } else if (isPending) {
+//         toastId = showLoadingToast('Transaction processing...', id)
+//         console.log(toastId)
+//       } else if (isSuccess) {
+//         toastId = showSuccessToast('Transfer successful!', id)
+//         console.log(toastId)
+//         console.log('Transaction Receipt', receipt)
+//       } else if (sendIsError || transactionIsError) {
+//         toastId = showErrorToast(
+//           'Transaction failed - see console for info',
+//           id
+//         )
+//         console.log(toastId)
+//       }
+
+//       // return () => {
+//       //   if (toastId) {
+//       //     toast.dismiss(toastId)
+//       //   }
+//       // }
+//     }
+//   }, [transactionData])
+
+//   return handleTransaction
+// }
