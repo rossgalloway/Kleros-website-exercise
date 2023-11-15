@@ -32,6 +32,9 @@ export function SendWidget() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isConnected])
 
+  /**
+   * update selectedToken balance if it has changed
+   */
   useEffect(() => {
     if (selectedToken) {
       // Find the token in listTokens that matches selectedToken

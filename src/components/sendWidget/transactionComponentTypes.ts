@@ -16,13 +16,35 @@ export type TransactionResult = {
 
 export type Transaction = {
   id: string
-  details: EthSendParams
+  details: TransactionPayload
   hash?: Hash
 }
 
 export type TransactionComponentProps = {
   id: string
-  transactionDetails: EthSendParams
+  type: PayloadType
+  transactionDetails: TransactionPayload
   onTransactionComplete: (result: TransactionResult) => void
   activeTransactions?: Transaction[]
 }
+
+export enum PayloadType {
+  EthPayload,
+  ErcPayload
+}
+
+export type EthPayload = {
+  type: PayloadType.EthPayload
+  token?: Address
+  to: Address
+  value: bigint
+}
+
+export type ErcPayload = {
+  type: PayloadType.ErcPayload
+  token: Address
+  to: Address
+  value: bigint
+}
+
+export type TransactionPayload = EthPayload | ErcPayload
