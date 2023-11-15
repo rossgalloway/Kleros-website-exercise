@@ -8,12 +8,41 @@ import {
 import { Address, TransactionReceipt } from 'viem'
 import { useEffect, useRef } from 'react'
 import { toast } from 'react-hot-toast'
+import { uniqueId } from 'lodash'
 import { TokenData } from '../types/tokenListTypes'
+import { EthSendParams } from '../components/sendWidget/transactionComponentTypes'
 import { useTransactionToast } from './useToast'
 
 export const useEthSend = () => {
+  const transactions = useRef<
+    Record<string, ReturnType<typeof useSendTransaction>>
+  >({})
+  const sendTransactionHook = useSendTransaction()
+
+  const CreateTransaction = (transactionDetails: EthSendParams) => {
+    const id = uniqueId('eth-send-')
+    transactions.current[id] = sendTransactionHook
+
+    sendTransactionHook.sendTransaction(transactionDetails)
+    useWaitForTransaction({ hash: sendTransactionHook.data?.hash })
+
+    const cleanup = () => {
+      delete transactions.current[id]
+    }
+
+    return {
+      id,
+      cleanup,
+      ...sendTransactionHook
+    }
+  }
+
+  return CreateTransaction
+}
+
+export const useEthSendOld = () => {
   const {
-    sendTransaction,
+    sendTransaction: send,
     data: transactionHash,
     error: initializeError,
     isLoading,
@@ -25,30 +54,28 @@ export const useEthSend = () => {
     isLoading: isPending,
     isSuccess,
     error: transactionError,
-    isError: TransactionIsError
+    isError: transactionIsError
   } = useWaitForTransaction({ hash: transactionHash?.hash })
 
-  useSendTransactionToasts(
-    isSuccess,
-    isLoading,
-    isPending,
-    sendIsError,
-    TransactionIsError,
-    receipt
-  )
+  const sendTransaction = (transactionDetails: EthSendParams) => {
+    send(transactionDetails)
+    const id = uniqueId('eth-send-')
 
-  return {
-    sendTransaction,
-    transactionHash,
-    initializeError,
-    isLoading,
-    sendIsError,
-    receipt,
-    isPending,
-    isSuccess,
-    transactionError,
-    TransactionIsError
+    return {
+      id,
+      transactionHash,
+      initializeError,
+      isLoading,
+      sendIsError,
+      receipt,
+      isPending,
+      isSuccess,
+      transactionError,
+      transactionIsError
+    }
   }
+
+  return sendTransaction
 }
 
 export const useErc20Send = (
@@ -113,6 +140,7 @@ const useSendTransactionToasts = (
   const { showSuccessToast, showErrorToast, showLoadingToast, showInfoToast } =
     useTransactionToast()
   const currentToastId = useRef('')
+  //TODO: switching tokens clears the toasts
 
   useEffect(() => {
     // Dismiss the current toast when the state changes
@@ -133,6 +161,7 @@ const useSendTransactionToasts = (
         'Transaction failed - see console for info'
       )
     }
+    console.log('current Toast: ', currentToastId.current)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     isSuccess,

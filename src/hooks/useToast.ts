@@ -5,6 +5,10 @@ export function useTransactionToast() {
     return toast.success(message, { id: id })
   }
 
+  const showTransactionSuccessToast = (message: string, id?: string) => {
+    return toast.success(message, { id: id || 'transaction success' })
+  }
+
   const showBadgeSuccessToast = (message: string, id?: string) => {
     return toast.success(message, { id: id || 'badge success' })
   }
@@ -19,10 +23,12 @@ export function useTransactionToast() {
 
   const showLoadingToast = (message: string, id?: string) => {
     return toast.loading(message, { id: id || 'loading' })
+    // return toast.loading(message, { id: id })
   }
 
   const showInfoToast = (message: string, id?: string) => {
     return toast(message, { id: id || 'info' })
+    // return toast(message, { id: id })
   }
 
   return {
@@ -31,6 +37,7 @@ export function useTransactionToast() {
     showLoadingToast,
     showInfoToast,
     showBadgeSuccessToast,
-    showBalanceSuccessToast
+    showBalanceSuccessToast,
+    showTransactionSuccessToast
   }
 }

@@ -9,7 +9,8 @@ import { publicProvider } from 'wagmi/providers/public'
 const walletConnectProjectId = import.meta.env.VITE_WALLET_CONNECT_PROJECT_ID
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
-  [mainnet, ...(import.meta.env?.MODE === 'development' ? [hardhat] : [])],
+  // [mainnet, ...(import.meta.env?.MODE === 'development' ? [hardhat] : [])],
+  [mainnet, hardhat],
   [
     alchemyProvider({ apiKey: import.meta.env.VITE_ALCHEMY_API_KEY }),
     infuraProvider({ apiKey: import.meta.env.VITE_INFURA_API_KEY }),

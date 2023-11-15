@@ -1,14 +1,24 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Button } from '@radix-ui/themes'
-import { type Address, useAccount } from 'wagmi'
-import {
-  useConnectModal,
-  useAddRecentTransaction
-} from '@rainbow-me/rainbowkit'
-import { TokenData } from '../../types/tokenListTypes'
+import { useAccount } from 'wagmi'
+import { useConnectModal } from '@rainbow-me/rainbowkit'
+import { uniqueId } from 'lodash'
 import { useSendWidgetContext } from '../../contexts/sendWidgetContext'
-import { useErc20Send, useEthSend } from '../../hooks/wagmiSendHooks'
+import { useDappContext } from '../../contexts/dAppContext'
+import { useTransactionToast } from '../../hooks/useToast'
+import {
+  ErcPayload,
+  EthPayload,
+  TransactionPayload,
+  type TransactionResult
+} from './transactionComponentTypes'
+import TransactionComponent from './TransactionComponent'
+
+export enum PayloadType {
+  EthPayload,
+  ErcPayload
+}
 
 export function SendButton() {
   const { isConnected } = useAccount()
@@ -21,6 +31,28 @@ export function SendButton() {
     isValidAddress,
     isValidValueInput
   } = useSendWidgetContext()
+  const [transactionPayload, setTransactionPayload] = useState<
+    TransactionPayload | undefined
+  >()
+
+  useEffect(() => {
+    if (selectedToken.ticker === 'ETH') {
+      const newTransactionPayload: EthPayload = {
+        type: PayloadType.EthPayload,
+        to: validAddress,
+        value: formattedTokenQty
+      }
+      setTransactionPayload(newTransactionPayload)
+    } else {
+      const newTransactionPayload: ErcPayload = {
+        type: PayloadType.ErcPayload,
+        token: selectedToken.addr,
+        to: validAddress,
+        value: formattedTokenQty
+      }
+      setTransactionPayload(newTransactionPayload)
+    }
+  }, [selectedToken])
 
   if (!isConnected) {
     return (
@@ -54,101 +86,88 @@ export function SendButton() {
     )
   }
 
-  const isEthereumToken = selectedToken.ticker === 'ETH'
-
-  return isEthereumToken ? (
-    <EthSendButton
-      validAddress={validAddress}
-      formattedTokenQty={formattedTokenQty}
-    />
-  ) : (
-    <Erc20SendButton
-      selectedToken={selectedToken}
-      validAddress={validAddress}
-      formattedTokenQty={formattedTokenQty}
-    />
+  return (
+    <>
+      {transactionPayload && <MultiSendButton payload={transactionPayload} />}
+    </>
   )
 }
 
-type Erc20SendButtonProps = {
-  selectedToken: TokenData
-  validAddress: Address
-  formattedTokenQty: bigint
+type MultiSendButtonProps = {
+  payload: TransactionPayload
 }
 
-const Erc20SendButton = ({
-  selectedToken,
-  validAddress,
-  formattedTokenQty
-}: Erc20SendButtonProps) => {
-  const addRecentTransaction = useAddRecentTransaction()
-  const { writeErc20Transfer, transactionHash: ercTransactionHash } =
-    useErc20Send(selectedToken, validAddress, formattedTokenQty)
+const MultiSendButton = ({ payload }: MultiSendButtonProps) => {
+  const {
+    setRetrievedWalletBalances,
+    setActiveTransactions,
+    activeTransactions,
+    completedTransactions,
+    setCompletedTransactions
+  } = useDappContext()
+  const { showTransactionSuccessToast, showErrorToast } = useTransactionToast()
 
-  const handleERC20SendClick = async () => {
-    try {
-      await writeErc20Transfer?.()
-
-      if (ercTransactionHash?.hash) {
-        addRecentTransaction({
-          hash: String(ercTransactionHash.hash),
-          description: 'Send ERC-20 transaction'
-        })
-      }
-    } catch (error) {
-      console.error('Error sending ERC-20 transaction:', error)
-    }
-  }
-  return (
-    <Button
-      className="button-main"
-      color="blue"
-      size="4"
-      onClick={handleERC20SendClick}
-    >
-      Send
-    </Button>
-  )
-}
-
-type EthSendButtonProps = {
-  validAddress: Address
-  formattedTokenQty: bigint
-}
-
-const EthSendButton = ({
-  validAddress,
-  formattedTokenQty
-}: EthSendButtonProps) => {
-  const { sendTransaction, transactionHash: ethTransactionHash } = useEthSend()
-  const addRecentTransaction = useAddRecentTransaction()
-
-  const handleETHSendClick = async () => {
-    try {
-      await sendTransaction({
-        to: validAddress,
-        value: formattedTokenQty
-      })
-
-      if (ethTransactionHash?.hash) {
-        addRecentTransaction({
-          hash: String(ethTransactionHash.hash),
-          description: 'Send ETH transaction'
-        })
-      }
-    } catch (error) {
-      console.error('Error sending ETH transaction:', error)
-    }
+  /**
+   * adds a transaction to the activeTransactions array in order to load the transaction component
+   * @param transactionDetails is the payload to be passed to a wagmi hook
+   */
+  const handleTransactionInitiation = (
+    transactionDetails: TransactionPayload
+  ) => {
+    const transactionId = uniqueId('transaction-')
+    setActiveTransactions((prev) => [
+      ...prev,
+      { id: transactionId, details: transactionDetails }
+    ])
   }
 
+  const onTransactionComplete = useCallback((result: TransactionResult) => {
+    if (result.status === 'success') {
+      console.log('Transaction Receipt', result.receipt)
+      showTransactionSuccessToast('Transfer successful!', result.id)
+    } else {
+      console.error('Transaction failed:', result.error)
+      showErrorToast('Transaction failed - see console for info', result.id)
+    }
+    setCompletedTransactions((prev) => [...prev, result])
+    setActiveTransactions((prev) => prev.filter((tx) => tx.hash !== result.id))
+    setRetrievedWalletBalances(false)
+  }, [])
+
+  /**
+   * logging for debugging purposes
+   */
+  useEffect(() => {
+    console.log('active transactions: ', activeTransactions)
+  }, [activeTransactions])
+
+  useEffect(() => {
+    console.log('completed transactions: ', completedTransactions)
+  }, [completedTransactions])
+
   return (
-    <Button
-      className="button-main"
-      color="blue"
-      size="4"
-      onClick={handleETHSendClick}
-    >
-      Send
-    </Button>
+    <>
+      {activeTransactions.map((transaction) => (
+        <TransactionComponent
+          key={transaction.id}
+          id={transaction.id}
+          type={transaction.details.type}
+          transactionDetails={transaction.details}
+          onTransactionComplete={onTransactionComplete}
+          activeTransactions={activeTransactions}
+        />
+      ))}
+      <Button
+        className="button-main"
+        color="blue"
+        size="4"
+        onClick={() =>
+          // the transactionDetails object could be variable depending on the input type
+          handleTransactionInitiation(payload)
+        }
+      >
+        Send
+      </Button>
+    </>
   )
 }
