@@ -133,6 +133,7 @@ function validateValueInput(
   setIsValidValueInput: React.Dispatch<React.SetStateAction<boolean>>,
   setIsSufficientBalance: React.Dispatch<React.SetStateAction<boolean>>
 ) {
+  if (!selectedToken) return
   const decimals = Number(selectedToken.decimals)
 
   // Handle the case when the input is empty

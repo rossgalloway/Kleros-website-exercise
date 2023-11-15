@@ -10,6 +10,12 @@ export function deserializeWithBigInt(
   json: string,
   bigintFields: string[]
 ): TokenData | TokenDataArray {
+  try {
+    JSON.parse(json)
+  } catch (e) {
+    throw new Error('Invalid JSON string')
+  }
+
   return JSON.parse(json, (key, value) => {
     if (bigintFields.includes(key)) {
       return BigInt(value)
@@ -17,3 +23,15 @@ export function deserializeWithBigInt(
     return value
   })
 }
+
+// export function deserializeWithBigInt(
+//   json: string,
+//   bigintFields: string[]
+// ): TokenData | TokenDataArray {
+//   return JSON.parse(json, (key, value) => {
+//     if (bigintFields.includes(key)) {
+//       return BigInt(value)
+//     }
+//     return value
+//   })
+// }

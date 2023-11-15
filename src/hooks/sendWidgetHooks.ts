@@ -1,5 +1,5 @@
 // sendWidgetHooks.ts
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 import { Address, getAddress } from 'viem'
 import { useEnsAddress, useNetwork } from 'wagmi'
 import { useSendWidgetContext } from '../contexts/sendWidgetContext'
@@ -39,17 +39,21 @@ export const useCheckEnsAddress = () => {
     setIsValidENS
   } = useSendWidgetContext()
   const { chain } = useNetwork()
-  const initialLoadRef = useRef(true)
+  let EnsToCheck: string
+  if (!addressInputValue) {
+    EnsToCheck = ''
+  } else {
+    EnsToCheck = addressInputValue
+  }
 
   const { data, refetch } = useEnsAddress({
-    name: addressInputValue,
+    name: EnsToCheck,
     enabled: false
   })
 
   useEffect(() => {
-    if (initialLoadRef.current || addressInputValue.endsWith('.eth')) {
+    if (addressInputValue.endsWith('.eth')) {
       refetch()
-      initialLoadRef.current = false
     }
   }, [addressInputValue, refetch])
 

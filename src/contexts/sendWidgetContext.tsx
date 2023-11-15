@@ -48,12 +48,19 @@ export const SendWidgetProvider: React.FC<SendWidgetProviderProps> = ({
 }) => {
   const getInitialSelectedToken = () => {
     const storedSelectedToken = localStorage.getItem('selectedToken')
-    return storedSelectedToken
-      ? (deserializeWithBigInt(storedSelectedToken, [
-          'decimals',
-          'balance'
-        ]) as TokenData)
-      : ETHData
+    if (storedSelectedToken === undefined || null) {
+      console.log('storedSelectedToken is undefined or null')
+      return ETHData
+    }
+    try {
+      return deserializeWithBigInt(storedSelectedToken as string, [
+        'decimals',
+        'balance'
+      ]) as TokenData
+    } catch (error) {
+      console.error('Error parsing storedSelectedToken', error)
+      return ETHData
+    }
   }
 
   const getInitialTokenQtyInputValue = () => {
@@ -84,6 +91,9 @@ export const SendWidgetProvider: React.FC<SendWidgetProviderProps> = ({
 
   // Update local storage on state changes
   useEffect(() => {
+    if (selectedToken === undefined || null) {
+      setSelectedToken(ETHData)
+    }
     localStorage.setItem('selectedToken', serializeWithBigInt(selectedToken))
   }, [selectedToken])
 

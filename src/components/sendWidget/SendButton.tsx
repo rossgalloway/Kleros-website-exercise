@@ -36,6 +36,7 @@ export function SendButton() {
   >()
 
   useEffect(() => {
+    if (!selectedToken) return
     if (selectedToken.ticker === 'ETH') {
       const newTransactionPayload: EthPayload = {
         type: PayloadType.EthPayload,
