@@ -13,6 +13,10 @@ import {
   serializeWithBigInt,
   deserializeWithBigInt
 } from '../utils/serializeBigInt'
+import {
+  Transaction,
+  TransactionResult
+} from '../components/sendWidget/transactionComponentTypes'
 
 interface DappContextProps {
   listTokens: TokenDataArray
@@ -25,6 +29,12 @@ interface DappContextProps {
   setRetrievedWalletBalances: React.Dispatch<React.SetStateAction<boolean>>
   retrievedBadgeTokens: boolean
   setRetrievedBadgeTokens: React.Dispatch<React.SetStateAction<boolean>>
+  activeTransactions: Transaction[]
+  setActiveTransactions: React.Dispatch<React.SetStateAction<Transaction[]>>
+  completedTransactions: TransactionResult[]
+  setCompletedTransactions: React.Dispatch<
+    React.SetStateAction<TransactionResult[]>
+  >
 }
 
 // Create a context with a default value
@@ -56,6 +66,12 @@ export const DappProvider: React.FC<TokenProviderProps> = ({ children }) => {
     useState<boolean>(false)
   const [retrievedBadgeTokens, setRetrievedBadgeTokens] =
     useState<boolean>(false)
+  const [activeTransactions, setActiveTransactions] = useState<Transaction[]>(
+    []
+  )
+  const [completedTransactions, setCompletedTransactions] = useState<
+    TransactionResult[]
+  >([])
 
   // Update local storage when listTokens changes
   useEffect(() => {
@@ -72,7 +88,11 @@ export const DappProvider: React.FC<TokenProviderProps> = ({ children }) => {
         retrievedWalletBalances,
         setRetrievedWalletBalances,
         retrievedBadgeTokens,
-        setRetrievedBadgeTokens
+        setRetrievedBadgeTokens,
+        activeTransactions,
+        setActiveTransactions,
+        completedTransactions,
+        setCompletedTransactions
       }}
     >
       {children}

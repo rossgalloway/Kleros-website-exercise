@@ -81,6 +81,7 @@ export const SendWidgetProvider: React.FC<SendWidgetProviderProps> = ({
   const [validAddress, setValidAddress] = useState<Address>('0x000') //check this default value
   const [isSufficientBalance, setIsSufficientBalance] = useState(false)
   const [isValidValueInput, setIsValidValueInput] = useState(false)
+  const [isTransactionInitiated, setIsTransactionInitiated] = useState(false)
 
   // Update local storage on state changes
   useEffect(() => {
@@ -115,7 +116,9 @@ export const SendWidgetProvider: React.FC<SendWidgetProviderProps> = ({
         isValidENS,
         setIsValidENS,
         isValidValueInput,
-        setIsValidValueInput
+        setIsValidValueInput,
+        isTransactionInitiated,
+        setIsTransactionInitiated
       }}
     >
       {children}

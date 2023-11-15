@@ -8,22 +8,39 @@ import {
 import { Address, TransactionReceipt } from 'viem'
 import { useEffect, useRef } from 'react'
 import { toast } from 'react-hot-toast'
-import { TokenData } from '../types/tokenListTypes'
-import { useTransactionToast } from './useToast'
 import { uniqueId } from 'lodash'
-
-type TransactionState = {
-  id: string
-  isSuccess: boolean
-  isLoading: boolean
-  isPending: boolean
-  sendIsError: boolean
-  transactionIsError: boolean
-  receipt: TransactionReceipt | undefined
-  transactionHash: { hash: string } | undefined
-}
+import { TokenData } from '../types/tokenListTypes'
+import { EthSendParams } from '../components/sendWidget/transactionComponentTypes'
+import { useTransactionToast } from './useToast'
 
 export const useEthSend = () => {
+  const transactions = useRef<
+    Record<string, ReturnType<typeof useSendTransaction>>
+  >({})
+  const sendTransactionHook = useSendTransaction()
+
+  const CreateTransaction = (transactionDetails: EthSendParams) => {
+    const id = uniqueId('eth-send-')
+    transactions.current[id] = sendTransactionHook
+
+    sendTransactionHook.sendTransaction(transactionDetails)
+    useWaitForTransaction({ hash: sendTransactionHook.data?.hash })
+
+    const cleanup = () => {
+      delete transactions.current[id]
+    }
+
+    return {
+      id,
+      cleanup,
+      ...sendTransactionHook
+    }
+  }
+
+  return CreateTransaction
+}
+
+export const useEthSendOld = () => {
   const {
     sendTransaction: send,
     data: transactionHash,
@@ -40,7 +57,7 @@ export const useEthSend = () => {
     isError: transactionIsError
   } = useWaitForTransaction({ hash: transactionHash?.hash })
 
-  const sendTransaction = (transactionDetails) => {
+  const sendTransaction = (transactionDetails: EthSendParams) => {
     send(transactionDetails)
     const id = uniqueId('eth-send-')
 
