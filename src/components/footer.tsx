@@ -12,9 +12,9 @@ function Footer() {
 
   const handleRefresh = () => {
     setIsSpinning(true)
-    setTimeout(() => setIsSpinning(false), 1000)
-    setRetrievedBadgeTokens(false)
+    // setRetrievedBadgeTokens(false)
     setRetrievedWalletBalances(false)
+    setTimeout(() => setIsSpinning(false), 1000)
   }
 
   return (

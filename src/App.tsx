@@ -15,6 +15,7 @@ import BalanceFetcher from './components/BalanceFetcher'
 export function App() {
   const { isConnected, address } = useAccount()
   const {
+    retrievedWalletBalances,
     setRetrievedWalletBalances,
     retrievedBadgeTokens,
     setRetrievedBadgeTokens
@@ -29,12 +30,6 @@ export function App() {
     }
   }, [retrievedBadgeTokens, refetchBadgeData, setRetrievedBadgeTokens])
 
-  // useEffect(() => {
-  //   if (isConnected) {
-  //     setRetrievedWalletBalances(false)
-  //   }
-  // }, [isConnected])
-
   const prevAddress = useRef(address)
   useEffect(() => {
     if (prevAddress.current !== address) {
@@ -47,7 +42,9 @@ export function App() {
     <>
       <Toaster position="bottom-right" />
       <Logger />
-      {isConnected && retrievedBadgeTokens && <BalanceFetcher />}
+      {isConnected && retrievedBadgeTokens && !retrievedWalletBalances && (
+        <BalanceFetcher />
+      )}
       <Flex
         className="app-container"
         direction="column"
@@ -68,30 +65,3 @@ export function App() {
     </>
   )
 }
-
-// useEffect(() => {
-//   if (
-//     isConnected &&
-//     !retrievedWalletBalances &&
-//     retrievedBadgeTokens &&
-//     address
-//   ) {
-//     console.log(
-//       'fetching wallet balances ',
-//       address,
-//       isConnected,
-//       retrievedWalletBalances,
-//       retrievedBadgeTokens
-//     )
-//     refetchEthBalance()
-//     refetchErcBalances()
-//   }
-// }, [
-//   address,
-//   isConnected,
-//   retrievedWalletBalances,
-//   retrievedBadgeTokens,
-//   refetchEthBalance,
-//   refetchErcBalances,
-//   setRetrievedWalletBalances
-// ])
