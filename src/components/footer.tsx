@@ -7,8 +7,7 @@ import { useDappContext } from '../contexts/dAppContext'
 
 function Footer() {
   const [isSpinning, setIsSpinning] = useState(false)
-  const { setRetrievedBadgeTokens, setRetrievedWalletBalances } =
-    useDappContext()
+  const { setRetrievedWalletBalances } = useDappContext()
 
   const handleRefresh = () => {
     setIsSpinning(true)
