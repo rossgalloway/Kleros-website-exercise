@@ -46,7 +46,30 @@ interface TokenProviderProps {
 
 // Create a provider component
 export const DappProvider: React.FC<TokenProviderProps> = ({ children }) => {
-  // const [listTokens, setListTokens] = useState<TokenDataArray>([])
+  const getInitialListTokens = () => {
+    const storedListTokens = localStorage.getItem('listTokens')
+    if (storedListTokens === undefined || null) {
+      console.log('storedListTokens is undefined or null')
+      return []
+    }
+    try {
+      return deserializeWithBigInt(storedListTokens as string, [
+        'decimals',
+        'balance'
+      ]) as TokenDataArray
+    } catch (error) {
+      console.error('Error parsing storedSelectedToken', error)
+      return []
+    }
+  }
+
+  // return storedListTokens
+  //   ? (deserializeWithBigInt(storedListTokens, [
+  //       'decimals',
+  //       'balance'
+  //     ]) as TokenDataArray)
+  //   : []
+
   const [listTokens, setListTokens] = useState<TokenDataArray>(
     getInitialListTokens()
   )
@@ -106,27 +129,3 @@ export const useDappContext = (): DappContextProps => {
   }
   return context
 }
-
-const getInitialListTokens = () => {
-  const storedListTokens = localStorage.getItem('listTokens')
-  if (storedListTokens === undefined || storedListTokens === null) {
-    console.log('storedListTokens is undefined or null')
-    return []
-  }
-  try {
-    return deserializeWithBigInt(storedListTokens as string, [
-      'decimals',
-      'balance'
-    ]) as TokenDataArray
-  } catch (error) {
-    console.error('Error parsing storedSelectedToken', error)
-    return []
-  }
-}
-
-// return storedListTokens
-//   ? (deserializeWithBigInt(storedListTokens, [
-//       'decimals',
-//       'balance'
-//     ]) as TokenDataArray)
-//   : []

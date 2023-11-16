@@ -38,7 +38,7 @@ export function SendWidget() {
    * update selectedToken balance if it has changed
    */
   useEffect(() => {
-    if (selectedToken) {
+    if (selectedToken && listTokens) {
       // Find the token in listTokens that matches selectedToken
       const updatedToken = listTokens.find(
         (token) => token && token.ID === selectedToken.ID

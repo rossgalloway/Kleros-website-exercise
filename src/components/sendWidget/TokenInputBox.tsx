@@ -109,7 +109,7 @@ function formatTokenBalance(
   listTokens: TokenDataArray
 ) {
   let formattedValue = 0
-  if (selectedToken) {
+  if (selectedToken && listTokens) {
     const token = listTokens.find(
       (t) => t !== undefined && t.addr === selectedToken.addr
     )
