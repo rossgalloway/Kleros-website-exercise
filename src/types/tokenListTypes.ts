@@ -19,3 +19,15 @@ export type TokenContractConfig = {
   address: Address
   abi: never
 }
+
+export type ETHBalanceConfig = {
+  address: Address
+  watch: boolean
+}
+
+export type ErcBalanceConfig = {
+  address: Address
+  abi: never
+  functionName: string
+  args: Address[]
+}

@@ -16,4 +16,5 @@ export type ercBalanceData =
         }
     )[]
   | undefined
+
 export type ethBalanceData = FetchBalanceResult | undefined

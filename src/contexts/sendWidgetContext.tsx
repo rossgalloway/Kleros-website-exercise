@@ -46,43 +46,19 @@ interface SendWidgetProviderProps {
 export const SendWidgetProvider: React.FC<SendWidgetProviderProps> = ({
   children
 }) => {
-  const getInitialSelectedToken = () => {
-    const storedSelectedToken = localStorage.getItem('selectedToken')
-    if (storedSelectedToken === undefined || null) {
-      console.log('storedSelectedToken is undefined or null')
-      return ETHData
-    }
-    try {
-      return deserializeWithBigInt(storedSelectedToken as string, [
-        'decimals',
-        'balance'
-      ]) as TokenData
-    } catch (error) {
-      console.error('Error parsing storedSelectedToken', error)
-      return ETHData
-    }
-  }
-
-  const getInitialTokenQtyInputValue = () => {
-    const storedTokenQty = localStorage.getItem('tokenQtyInputValue')
-    return storedTokenQty ? storedTokenQty : ''
-  }
-
-  const getInitialAddressInputValue = () => {
-    const storedAddress = localStorage.getItem('addressInputValue')
-    return storedAddress ? storedAddress : ''
-  }
-
-  const [selectedToken, setSelectedToken] = useState<TokenData>(
-    getInitialSelectedToken()
-  )
-  const [tokenQtyInputValue, setTokenQtyInputValue] = useState<string>(
-    getInitialTokenQtyInputValue()
-  )
+  const [selectedToken, setSelectedToken] = useState<TokenData>(ETHData)
+  // const [selectedToken, setSelectedToken] = useState<TokenData>(
+  //   getInitialSelectedToken()
+  // )
+  const [tokenQtyInputValue, setTokenQtyInputValue] = useState<string>('')
+  // const [tokenQtyInputValue, setTokenQtyInputValue] = useState<string>(
+  //   getInitialTokenQtyInputValue()
+  // )
+  const [addressInputValue, setAddressInputValue] = useState<string>('')
+  // const [addressInputValue, setAddressInputValue] = useState<string>(
+  //   getInitialAddressInputValue()
+  // )
   const [formattedTokenQty, setFormattedTokenQty] = useState<bigint>(0n)
-  const [addressInputValue, setAddressInputValue] = useState<string>(
-    getInitialAddressInputValue()
-  )
   const [isValidAddress, setIsValidAddress] = useState(false)
   const [isValidENS, setIsValidENS] = useState(false)
   const [validAddress, setValidAddress] = useState<Address>('0x000') //check this default value
@@ -139,4 +115,31 @@ export const useSendWidgetContext = (): SendWidgetContextType => {
     throw new Error('useSendWidget must be used within a SendWidgetProvider')
   }
   return context
+}
+
+const getInitialSelectedToken = () => {
+  const storedSelectedToken = localStorage.getItem('selectedToken')
+  if (storedSelectedToken === undefined || null) {
+    console.log('storedSelectedToken is undefined or null')
+    return ETHData
+  }
+  try {
+    return deserializeWithBigInt(storedSelectedToken as string, [
+      'decimals',
+      'balance'
+    ]) as TokenData
+  } catch (error) {
+    console.error('Error parsing storedSelectedToken', error)
+    return ETHData
+  }
+}
+
+const getInitialTokenQtyInputValue = () => {
+  const storedTokenQty = localStorage.getItem('tokenQtyInputValue')
+  return storedTokenQty ? storedTokenQty : ''
+}
+
+const getInitialAddressInputValue = () => {
+  const storedAddress = localStorage.getItem('addressInputValue')
+  return storedAddress ? storedAddress : ''
 }

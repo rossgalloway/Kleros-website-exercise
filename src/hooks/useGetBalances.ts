@@ -12,7 +12,7 @@ import { ercBalanceData, ethBalanceData } from '../types/ethCallTypes'
 import { useTransactionToast } from './useToast'
 
 export function useGetBalances() {
-  const { address, isConnected } = useAccount()
+  const { address } = useAccount()
   const {
     tokenContractConfigs,
     retrievedWalletBalances,
@@ -45,12 +45,12 @@ export function useGetBalances() {
     refetch: refetchEthBalance
   } = useBalance({
     ...ethBalanceConfig,
-    // onSuccess() {
-    //   console.log('fetched ETH Balance')
-    // },
-    // onError(error) {
-    //   console.log('Error', error)
-    // },
+    onSuccess() {
+      console.log('@useGetBalances - fetched ETH Balance ', ethBalanceData)
+    },
+    onError(error) {
+      console.log('Error', error)
+    },
     watch: true,
     enabled: false
   })
@@ -69,12 +69,12 @@ export function useGetBalances() {
         ...item,
         address: erc20ContractConfigs[index].address
       })),
-    // onSuccess() {
-    //   console.log('fetched ERC20 Balances')
-    // },
-    // onError(error) {
-    //   console.log('Error', error)
-    // },
+    onSuccess() {
+      console.log('@useGetBalances - fetched ERC20 Balances ', ercBalanceData)
+    },
+    onError(error) {
+      console.log('Error', error)
+    },
     watch: true,
     enabled: false
   })
@@ -91,7 +91,8 @@ export function useGetBalances() {
     const updatedTokens = processBalances(
       ercBalanceData,
       ethBalanceData,
-      listTokens
+      listTokens,
+      setRetrievedWalletBalances
     )
     // console.log('processed Balances', updatedTokens)
     if (updatedTokens && updatedTokens.length > 0) {
@@ -111,6 +112,7 @@ function createContractConfigs(
   address: Address | undefined,
   configs: TokenContractConfig[]
 ) {
+  console.log('createContractConfigs', address, configs)
   if (!address) return []
   return configs.map((config) => ({
     ...config,
@@ -120,11 +122,7 @@ function createContractConfigs(
 }
 
 function createETHBalanceConfig(address: Address | undefined) {
-  if (!address)
-    return {
-      address: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
-      watch: false
-    }
+  console.log('createETHBalanceConfig', address)
   return {
     address,
     watch: true
@@ -134,7 +132,8 @@ function createETHBalanceConfig(address: Address | undefined) {
 export function processBalances(
   ercBalanceData: ercBalanceData,
   ethBalanceData: ethBalanceData,
-  listTokens: TokenDataArray
+  listTokens: TokenDataArray,
+  setRetrievedWalletBalances: React.Dispatch<React.SetStateAction<boolean>>
 ) {
   if (
     ercBalanceData &&
@@ -154,6 +153,7 @@ export function processBalances(
 
         return { ...token, balance: balanceData }
       })
+    setRetrievedWalletBalances(true)
     console.log('complete balance processing', updatedTokens)
     return updatedTokens
   }

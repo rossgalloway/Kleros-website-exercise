@@ -39,7 +39,7 @@ export const useQueryKlerosTokens = () => {
     setRetrievedBadgeTokens
   } = useDappContext()
 
-  const { badgeData, badgeError, badgeIsLoading, refetchBadgeData } =
+  const { badgeData, badgeIsError, badgeIsLoading, refetchBadgeData } =
     useQueryBadgeData()
   const { tokenIdsData, tokenIdsError, tokenIdsIsLoading } =
     useQueryTokenIds(badgeData)
@@ -57,7 +57,7 @@ export const useQueryKlerosTokens = () => {
   }, [tokensData])
 
   useQueryKlerosToasts(
-    badgeError,
+    badgeIsError,
     badgeIsLoading,
     tokenIdsError,
     tokenIdsIsLoading,
@@ -91,7 +91,7 @@ function useQueryBadgeData() {
 
   return {
     badgeData,
-    badgeError: badgeIsError,
+    badgeIsError,
     badgeIsLoading,
     refetchBadgeData
   }
@@ -105,7 +105,7 @@ function useQueryBadgeData() {
 const useQueryTokenIds = (badgeData: Address[] | undefined) => {
   const {
     data: tokenIdsData,
-    isError: tokenIdsError,
+    isError: tokenIdsIsError,
     isLoading: tokenIdsIsLoading,
     refetch: refetchTokenIdsData
   } = useContractRead({
@@ -123,7 +123,7 @@ const useQueryTokenIds = (badgeData: Address[] | undefined) => {
     }
   }, [badgeData, refetchTokenIdsData])
 
-  return { tokenIdsData, tokenIdsIsLoading, tokenIdsError }
+  return { tokenIdsData, tokenIdsIsLoading, tokenIdsError: tokenIdsIsError }
 }
 
 /**
@@ -185,7 +185,7 @@ export const ProcessTokensData = (
 }
 
 const useQueryKlerosToasts = (
-  badgeError: boolean,
+  badgeIsError: boolean,
   badgeIsLoading: boolean,
   tokenIdsError: boolean,
   tokenIdsIsLoading: boolean,
@@ -209,7 +209,7 @@ const useQueryKlerosToasts = (
       currentToastId.current = showLoadingToast('Fetching Kleros token list...')
     }
     // Show error toast if any query encounters an error
-    else if (badgeError || tokenIdsError || tokensDataError) {
+    else if (badgeIsError || tokenIdsError || tokensDataError) {
       currentToastId.current = showErrorToast(
         'Error fetching Kleros token list'
       )
@@ -220,7 +220,7 @@ const useQueryKlerosToasts = (
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    badgeError,
+    badgeIsError,
     badgeIsLoading,
     tokenIdsError,
     tokenIdsIsLoading,

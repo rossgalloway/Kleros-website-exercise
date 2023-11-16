@@ -139,17 +139,6 @@ const MultiSendButton = ({ payload }: MultiSendButtonProps) => {
     setRetrievedWalletBalances(false)
   }, [])
 
-  /**
-   * logging for debugging purposes
-   */
-  useEffect(() => {
-    console.log('active transactions: ', activeTransactions)
-  }, [activeTransactions])
-
-  useEffect(() => {
-    console.log('completed transactions: ', completedTransactions)
-  }, [completedTransactions])
-
   return (
     <>
       {activeTransactions.map((transaction) => (

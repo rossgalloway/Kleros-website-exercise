@@ -8,19 +8,18 @@ import Footer from './components/footer'
 import Header from './components/header'
 import SendWidget from './components/sendWidget'
 import { useDappContext } from './contexts/dAppContext'
-import { useGetBalances } from './hooks/useGetBalances'
 import { useQueryKlerosTokens } from './hooks/useQueryKlerosTokens'
 import Logger from './components/Logger'
+import BalanceFetcher from './components/BalanceFetcher'
 
 export function App() {
   const { isConnected, address } = useAccount()
   const {
-    retrievedWalletBalances,
     setRetrievedWalletBalances,
     retrievedBadgeTokens,
     setRetrievedBadgeTokens
   } = useDappContext()
-  const { refetchErcBalances, refetchEthBalance } = useGetBalances()
+  // const { refetchErcBalances, refetchEthBalance } = useGetBalances()
   const { refetchBadgeData } = useQueryKlerosTokens()
 
   useEffect(() => {
@@ -30,26 +29,11 @@ export function App() {
     }
   }, [retrievedBadgeTokens, refetchBadgeData, setRetrievedBadgeTokens])
 
-  useEffect(() => {
-    if (isConnected && !retrievedWalletBalances && retrievedBadgeTokens) {
-      refetchEthBalance()
-      refetchErcBalances()
-      setRetrievedWalletBalances(true)
-    }
-  }, [
-    isConnected,
-    retrievedWalletBalances,
-    retrievedBadgeTokens,
-    refetchEthBalance,
-    refetchErcBalances,
-    setRetrievedWalletBalances
-  ])
-
-  useEffect(() => {
-    if (isConnected) {
-      setRetrievedWalletBalances(false)
-    }
-  }, [isConnected])
+  // useEffect(() => {
+  //   if (isConnected) {
+  //     setRetrievedWalletBalances(false)
+  //   }
+  // }, [isConnected])
 
   const prevAddress = useRef(address)
   useEffect(() => {
@@ -63,6 +47,7 @@ export function App() {
     <>
       <Toaster position="bottom-right" />
       <Logger />
+      {isConnected && retrievedBadgeTokens && <BalanceFetcher />}
       <Flex
         className="app-container"
         direction="column"
@@ -83,3 +68,30 @@ export function App() {
     </>
   )
 }
+
+// useEffect(() => {
+//   if (
+//     isConnected &&
+//     !retrievedWalletBalances &&
+//     retrievedBadgeTokens &&
+//     address
+//   ) {
+//     console.log(
+//       'fetching wallet balances ',
+//       address,
+//       isConnected,
+//       retrievedWalletBalances,
+//       retrievedBadgeTokens
+//     )
+//     refetchEthBalance()
+//     refetchErcBalances()
+//   }
+// }, [
+//   address,
+//   isConnected,
+//   retrievedWalletBalances,
+//   retrievedBadgeTokens,
+//   refetchEthBalance,
+//   refetchErcBalances,
+//   setRetrievedWalletBalances
+// ])
