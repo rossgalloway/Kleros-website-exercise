@@ -46,10 +46,10 @@ interface TokenProviderProps {
 
 // Create a provider component
 export const DappProvider: React.FC<TokenProviderProps> = ({ children }) => {
-  const [listTokens, setListTokens] = useState<TokenDataArray>([])
-  // const [listTokens, setListTokens] = useState<TokenDataArray>(
-  //   getInitialListTokens()
-  // )
+  // const [listTokens, setListTokens] = useState<TokenDataArray>([])
+  const [listTokens, setListTokens] = useState<TokenDataArray>(
+    getInitialListTokens()
+  )
   const [tokenContractConfigs, setTokenContractConfigs] = useState<
     TokenContractConfig[]
   >([])
@@ -109,7 +109,7 @@ export const useDappContext = (): DappContextProps => {
 
 const getInitialListTokens = () => {
   const storedListTokens = localStorage.getItem('listTokens')
-  if (storedListTokens === undefined || null) {
+  if (storedListTokens === undefined || storedListTokens === null) {
     console.log('storedListTokens is undefined or null')
     return []
   }

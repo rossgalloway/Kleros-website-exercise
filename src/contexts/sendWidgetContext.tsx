@@ -46,18 +46,18 @@ interface SendWidgetProviderProps {
 export const SendWidgetProvider: React.FC<SendWidgetProviderProps> = ({
   children
 }) => {
-  const [selectedToken, setSelectedToken] = useState<TokenData>(ETHData)
-  // const [selectedToken, setSelectedToken] = useState<TokenData>(
-  //   getInitialSelectedToken()
-  // )
-  const [tokenQtyInputValue, setTokenQtyInputValue] = useState<string>('')
-  // const [tokenQtyInputValue, setTokenQtyInputValue] = useState<string>(
-  //   getInitialTokenQtyInputValue()
-  // )
-  const [addressInputValue, setAddressInputValue] = useState<string>('')
-  // const [addressInputValue, setAddressInputValue] = useState<string>(
-  //   getInitialAddressInputValue()
-  // )
+  // const [selectedToken, setSelectedToken] = useState<TokenData>(ETHData)
+  const [selectedToken, setSelectedToken] = useState<TokenData>(
+    getInitialSelectedToken()
+  )
+  // const [tokenQtyInputValue, setTokenQtyInputValue] = useState<string>('')
+  const [tokenQtyInputValue, setTokenQtyInputValue] = useState<string>(
+    getInitialTokenQtyInputValue()
+  )
+  // const [addressInputValue, setAddressInputValue] = useState<string>('')
+  const [addressInputValue, setAddressInputValue] = useState<string>(
+    getInitialAddressInputValue()
+  )
   const [formattedTokenQty, setFormattedTokenQty] = useState<bigint>(0n)
   const [isValidAddress, setIsValidAddress] = useState(false)
   const [isValidENS, setIsValidENS] = useState(false)
@@ -119,7 +119,7 @@ export const useSendWidgetContext = (): SendWidgetContextType => {
 
 const getInitialSelectedToken = () => {
   const storedSelectedToken = localStorage.getItem('selectedToken')
-  if (storedSelectedToken === undefined || null) {
+  if (storedSelectedToken === undefined || storedSelectedToken === null) {
     console.log('storedSelectedToken is undefined or null')
     return ETHData
   }

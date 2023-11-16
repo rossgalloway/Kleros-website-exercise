@@ -107,7 +107,6 @@ const MultiSendButton = ({ payload }: MultiSendButtonProps) => {
     setRetrievedWalletBalances,
     setActiveTransactions,
     activeTransactions,
-    completedTransactions,
     setCompletedTransactions
   } = useDappContext()
   const { showTransactionSuccessToast, showErrorToast } = useTransactionToast()
