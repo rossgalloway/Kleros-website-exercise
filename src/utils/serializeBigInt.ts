@@ -1,6 +1,9 @@
+import { Transaction } from '../components/sendWidget/transactionComponentTypes'
 import { TokenData, TokenDataArray } from '../types/tokenListTypes'
 
-export function serializeWithBigInt(obj: TokenData | TokenDataArray): string {
+export function serializeWithBigInt(
+  obj: TokenData | TokenDataArray | Transaction[]
+): string {
   return JSON.stringify(obj, (key, value) =>
     typeof value === 'bigint' ? value.toString() : value
   )

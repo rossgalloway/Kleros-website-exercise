@@ -36,6 +36,11 @@ export function SendWidget() {
    * update selectedToken balance if it has changed
    */
   useEffect(() => {
+    // if (!selectedToken && listTokens) {
+    //   setSelectedToken(listTokens[0] as TokenData)
+    // } else {
+    //   setSelectedToken(ETHData)
+    // }
     if (selectedToken) {
       // Find the token in listTokens that matches selectedToken
       const updatedToken = listTokens.find(
@@ -84,7 +89,7 @@ const flushInputs = (
   setSelectedToken: React.Dispatch<React.SetStateAction<TokenData>>,
   listTokens: TokenDataArray
 ) => {
-  if (!isConnected) {
+  if (!isConnected && listTokens) {
     setAddressInputValue('')
     setTokenQtyInputValue('')
     setFormattedTokenQty(0n)

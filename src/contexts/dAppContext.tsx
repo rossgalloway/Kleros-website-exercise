@@ -48,13 +48,27 @@ interface TokenProviderProps {
 export const DappProvider: React.FC<TokenProviderProps> = ({ children }) => {
   const getInitialListTokens = () => {
     const storedListTokens = localStorage.getItem('listTokens')
-    return storedListTokens
-      ? (deserializeWithBigInt(storedListTokens, [
-          'decimals',
-          'balance'
-        ]) as TokenDataArray)
-      : []
+    if (storedListTokens === undefined || null) {
+      console.log('storedListTokens is undefined or null')
+      return []
+    }
+    try {
+      return deserializeWithBigInt(storedListTokens as string, [
+        'decimals',
+        'balance'
+      ]) as TokenDataArray
+    } catch (error) {
+      console.error('Error parsing storedSelectedToken', error)
+      return []
+    }
   }
+
+  // return storedListTokens
+  //   ? (deserializeWithBigInt(storedListTokens, [
+  //       'decimals',
+  //       'balance'
+  //     ]) as TokenDataArray)
+  //   : []
 
   const [listTokens, setListTokens] = useState<TokenDataArray>(
     getInitialListTokens()
@@ -77,6 +91,13 @@ export const DappProvider: React.FC<TokenProviderProps> = ({ children }) => {
   useEffect(() => {
     localStorage.setItem('listTokens', serializeWithBigInt(listTokens))
   }, [listTokens])
+
+  useEffect(() => {
+    localStorage.setItem(
+      'activeTransactions',
+      serializeWithBigInt(activeTransactions)
+    )
+  }, [activeTransactions])
 
   return (
     <DappContext.Provider

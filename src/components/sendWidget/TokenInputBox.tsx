@@ -48,7 +48,7 @@ export function TokenInputBox() {
       setIsSufficientBalance
     )
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [listTokens])
+  }, [listTokens, isConnected, selectedToken])
 
   useEffect(() => {
     if (selectedToken?.balance) {
@@ -140,6 +140,7 @@ function validateValueInput(
   if (inputValue === '') {
     setTokenQtyInputValue('')
     setFormattedTokenQty(BigInt(0))
+    setIsValidValueInput(true)
     return
   }
 

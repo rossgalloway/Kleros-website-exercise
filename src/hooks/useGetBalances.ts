@@ -12,7 +12,7 @@ import { ercBalanceData, ethBalanceData } from '../types/ethCallTypes'
 import { useTransactionToast } from './useToast'
 
 export function useGetBalances() {
-  const { address } = useAccount()
+  const { address, isConnected } = useAccount()
   const {
     tokenContractConfigs,
     retrievedWalletBalances,
@@ -96,7 +96,6 @@ export function useGetBalances() {
     // console.log('processed Balances', updatedTokens)
     if (updatedTokens && updatedTokens.length > 0) {
       setListTokens(updatedTokens as TokenDataArray)
-      // console.log('updated ListTokens', listTokens)
       setRetrievedWalletBalances(true)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -155,7 +154,7 @@ export function processBalances(
 
         return { ...token, balance: balanceData }
       })
-    // console.log('complete balance processing', updatedTokens)
+    console.log('complete balance processing', updatedTokens)
     return updatedTokens
   }
 }

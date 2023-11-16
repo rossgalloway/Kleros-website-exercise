@@ -36,6 +36,10 @@ export function SendButton() {
   >()
 
   useEffect(() => {
+    console.log('transaction payload: ', transactionPayload)
+  }, [transactionPayload])
+
+  useEffect(() => {
     if (!selectedToken) return
     if (selectedToken.ticker === 'ETH') {
       const newTransactionPayload: EthPayload = {
@@ -53,7 +57,7 @@ export function SendButton() {
       }
       setTransactionPayload(newTransactionPayload)
     }
-  }, [selectedToken])
+  }, [selectedToken, formattedTokenQty, validAddress])
 
   if (!isConnected) {
     return (

@@ -10,6 +10,7 @@ import SendWidget from './components/sendWidget'
 import { useDappContext } from './contexts/dAppContext'
 import { useGetBalances } from './hooks/useGetBalances'
 import { useQueryKlerosTokens } from './hooks/useQueryKlerosTokens'
+import Logger from './components/Logger'
 
 export function App() {
   const { isConnected, address } = useAccount()
@@ -44,6 +45,12 @@ export function App() {
     setRetrievedWalletBalances
   ])
 
+  useEffect(() => {
+    if (isConnected) {
+      setRetrievedWalletBalances(false)
+    }
+  }, [isConnected])
+
   const prevAddress = useRef(address)
   useEffect(() => {
     if (prevAddress.current !== address) {
@@ -55,6 +62,7 @@ export function App() {
   return (
     <>
       <Toaster position="bottom-right" />
+      <Logger />
       <Flex
         className="app-container"
         direction="column"
