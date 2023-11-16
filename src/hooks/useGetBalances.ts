@@ -51,7 +51,7 @@ export function useGetBalances() {
     // onError(error) {
     //   console.log('Error', error)
     // },
-    watch: true,
+    watch: false,
     enabled: false
   })
 
@@ -75,8 +75,8 @@ export function useGetBalances() {
     // onError(error) {
     //   console.log('Error', error)
     // },
-    watch: true,
-    enabled: false
+    watch: false,
+    enabled: true
   })
 
   useBalanceToasts(

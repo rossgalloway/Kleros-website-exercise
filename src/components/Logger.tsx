@@ -1,10 +1,17 @@
 import { useEffect } from 'react'
+import { useAccount } from 'wagmi'
 import { useDappContext } from '../contexts/dAppContext'
 import { useSendWidgetContext } from '../contexts/sendWidgetContext'
 
 export default function Logger() {
-  const { listTokens, retrievedWalletBalances, retrievedBadgeTokens } =
-    useDappContext()
+  const { address } = useAccount()
+  const {
+    listTokens,
+    retrievedWalletBalances,
+    retrievedBadgeTokens,
+    activeTransactions,
+    completedTransactions
+  } = useDappContext()
   const { selectedToken } = useSendWidgetContext()
 
   useEffect(() => {
@@ -28,6 +35,18 @@ export default function Logger() {
       retrievedBadgeTokens
     )
   }, [retrievedBadgeTokens])
+
+  useEffect(() => {
+    console.log('@logger - address updated: ', address)
+  }, [address])
+
+  useEffect(() => {
+    console.log('active transactions: ', activeTransactions)
+  }, [activeTransactions])
+
+  useEffect(() => {
+    console.log('completed transactions: ', completedTransactions)
+  }, [completedTransactions])
 
   return null
 }

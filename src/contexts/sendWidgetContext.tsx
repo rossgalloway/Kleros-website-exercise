@@ -91,7 +91,7 @@ export const SendWidgetProvider: React.FC<SendWidgetProviderProps> = ({
 
   // Update local storage on state changes
   useEffect(() => {
-    if (selectedToken === undefined || null) {
+    if (selectedToken === undefined || selectedToken === null) {
       setSelectedToken(ETHData)
     }
     localStorage.setItem('selectedToken', serializeWithBigInt(selectedToken))

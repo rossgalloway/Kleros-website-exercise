@@ -41,7 +41,7 @@ export function SendWidget() {
     // } else {
     //   setSelectedToken(ETHData)
     // }
-    if (selectedToken) {
+    if (selectedToken && listTokens) {
       // Find the token in listTokens that matches selectedToken
       const updatedToken = listTokens.find(
         (token) => token && token.ID === selectedToken.ID
