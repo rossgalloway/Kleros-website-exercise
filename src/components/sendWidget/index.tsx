@@ -21,14 +21,16 @@ export function SendWidget() {
   const { listTokens, retrievedWalletBalances } = useDappContext()
 
   useEffect(() => {
-    flushInputs(
-      isConnected,
-      setAddressInputValue,
-      setTokenQtyInputValue,
-      setFormattedTokenQty,
-      setSelectedToken,
-      listTokens
-    )
+    if (!isConnected) {
+      flushInputs(
+        isConnected,
+        setAddressInputValue,
+        setTokenQtyInputValue,
+        setFormattedTokenQty,
+        setSelectedToken,
+        listTokens
+      )
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isConnected])
 
@@ -36,11 +38,6 @@ export function SendWidget() {
    * update selectedToken balance if it has changed
    */
   useEffect(() => {
-    // if (!selectedToken && listTokens) {
-    //   setSelectedToken(listTokens[0] as TokenData)
-    // } else {
-    //   setSelectedToken(ETHData)
-    // }
     if (selectedToken && listTokens) {
       // Find the token in listTokens that matches selectedToken
       const updatedToken = listTokens.find(

@@ -107,7 +107,6 @@ const MultiSendButton = ({ payload }: MultiSendButtonProps) => {
     setRetrievedWalletBalances,
     setActiveTransactions,
     activeTransactions,
-    completedTransactions,
     setCompletedTransactions
   } = useDappContext()
   const { showTransactionSuccessToast, showErrorToast } = useTransactionToast()
@@ -138,17 +137,6 @@ const MultiSendButton = ({ payload }: MultiSendButtonProps) => {
     setActiveTransactions((prev) => prev.filter((tx) => tx.hash !== result.id))
     setRetrievedWalletBalances(false)
   }, [])
-
-  /**
-   * logging for debugging purposes
-   */
-  useEffect(() => {
-    console.log('active transactions: ', activeTransactions)
-  }, [activeTransactions])
-
-  useEffect(() => {
-    console.log('completed transactions: ', completedTransactions)
-  }, [completedTransactions])
 
   return (
     <>

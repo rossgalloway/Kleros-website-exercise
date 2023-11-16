@@ -1,5 +1,6 @@
 import { Address } from 'viem'
-import { TokenData } from '../types/tokenListTypes'
+import { ErcBalanceConfig, TokenData } from '../types/tokenListTypes'
+import { erc20ABI } from 'wagmi'
 
 export const ETHData: TokenData = {
   ID: 'null',
@@ -28,3 +29,10 @@ export const hardcodedGoerliData: TokenData[] = [
 
 export const vitalikAddress: Address =
   '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'
+
+export const ercDummyData: ErcBalanceConfig = {
+  address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+  abi: erc20ABI as never,
+  functionName: 'balanceOf',
+  args: [vitalikAddress as Address]
+}

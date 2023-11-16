@@ -7,14 +7,13 @@ import { useDappContext } from '../contexts/dAppContext'
 
 function Footer() {
   const [isSpinning, setIsSpinning] = useState(false)
-  const { setRetrievedBadgeTokens, setRetrievedWalletBalances } =
-    useDappContext()
+  const { setRetrievedWalletBalances } = useDappContext()
 
   const handleRefresh = () => {
     setIsSpinning(true)
-    setTimeout(() => setIsSpinning(false), 1000)
-    setRetrievedBadgeTokens(false)
+    // setRetrievedBadgeTokens(false)
     setRetrievedWalletBalances(false)
+    setTimeout(() => setIsSpinning(false), 1000)
   }
 
   return (

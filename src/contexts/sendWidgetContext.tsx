@@ -48,7 +48,7 @@ export const SendWidgetProvider: React.FC<SendWidgetProviderProps> = ({
 }) => {
   const getInitialSelectedToken = () => {
     const storedSelectedToken = localStorage.getItem('selectedToken')
-    if (storedSelectedToken === undefined || null) {
+    if (storedSelectedToken === undefined || storedSelectedToken === null) {
       console.log('storedSelectedToken is undefined or null')
       return ETHData
     }
