@@ -84,9 +84,6 @@ function useQueryBadgeData() {
     enabled: false,
     args: [zeroAddress, BigInt(1000), filter, true],
     select: (data) => data?.[0]?.filter((address) => address !== zeroAddress)
-    // onSuccess() {
-    //   console.log('refetched badgeData')
-    // }
   })
 
   return {
@@ -119,7 +116,6 @@ const useQueryTokenIds = (badgeData: Address[] | undefined) => {
   useEffect(() => {
     if (badgeData) {
       refetchTokenIdsData()
-      // console.log('refetching tokenIdsData')
     }
   }, [badgeData, refetchTokenIdsData])
 
@@ -155,7 +151,6 @@ const useGetTokensData = (tokenIdsData: Address[] | undefined) => {
   useEffect(() => {
     if (tokenIdsData) {
       refetchTokensData()
-      // console.log('refetching tokensData')
     }
   }, [tokenIdsData, refetchTokensData])
 
@@ -171,7 +166,6 @@ export const ProcessTokensData = (
   >
   // eslint-disable-next-line no-unused-vars
 ) => {
-  // console.log('Processing tokens data')
   if (!tokensData) return
   const contractConfigs = tokensData.map((token) => ({
     address: token.addr,

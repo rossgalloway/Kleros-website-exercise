@@ -12,7 +12,7 @@ import {
   EthPayload,
   TransactionPayload,
   type TransactionResult
-} from './transactionComponentTypes'
+} from '../../types/transactionComponentTypes'
 import TransactionComponent from './TransactionComponent'
 
 export enum PayloadType {
@@ -35,9 +35,7 @@ export function SendButton() {
     TransactionPayload | undefined
   >()
 
-  useEffect(() => {
-    console.log('transaction payload: ', transactionPayload)
-  }, [transactionPayload])
+  useEffect(() => {}, [transactionPayload])
 
   useEffect(() => {
     if (!selectedToken) return

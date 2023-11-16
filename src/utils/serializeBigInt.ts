@@ -1,4 +1,4 @@
-import { Transaction } from '../components/sendWidget/transactionComponentTypes'
+import { Transaction } from '../types/transactionComponentTypes'
 import { TokenData, TokenDataArray } from '../types/tokenListTypes'
 
 export function serializeWithBigInt(

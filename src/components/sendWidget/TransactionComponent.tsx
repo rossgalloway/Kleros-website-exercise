@@ -17,7 +17,7 @@ import {
   EthPayload,
   PayloadType,
   type TransactionComponentProps
-} from './transactionComponentTypes'
+} from '../../types/transactionComponentTypes'
 
 // TransactionComponent.jsx
 export const TransactionComponent = ({
@@ -77,10 +77,6 @@ export const TransactionComponent = ({
     isError: transactionIsError
     // ... other states from useWaitForTransaction
   } = useWaitForTransaction({ hash: transactionHash?.hash })
-
-  useEffect(() => {
-    console.log('TransactionComponent mounted')
-  }, [])
 
   /**
    * Initialize the transaction

@@ -16,7 +16,7 @@ import {
 import {
   Transaction,
   TransactionResult
-} from '../components/sendWidget/transactionComponentTypes'
+} from '../types/transactionComponentTypes'
 
 interface DappContextProps {
   listTokens: TokenDataArray

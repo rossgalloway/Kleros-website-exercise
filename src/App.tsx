@@ -9,7 +9,7 @@ import Header from './components/header'
 import SendWidget from './components/sendWidget'
 import { useDappContext } from './contexts/dAppContext'
 import { useQueryKlerosTokens } from './hooks/useQueryKlerosTokens'
-import Logger from './components/Logger'
+// import Logger from './components/Logger'
 import BalanceFetcher from './components/BalanceFetcher'
 
 export function App() {
@@ -46,7 +46,7 @@ export function App() {
   return (
     <>
       <Toaster position="bottom-right" />
-      <Logger />
+      {/* <Logger /> */}
       {isConnected && retrievedBadgeTokens && !retrievedWalletBalances && (
         <BalanceFetcher />
       )}

@@ -31,21 +31,6 @@ export const BalanceFetcher = () => {
   const [ethBalanceConfig, setEthBalanceConfig] = useState<ETHBalanceConfig>()
 
   useEffect(() => {
-    console.log('balance fetcher mounted')
-  }, [])
-
-  useEffect(() => {
-    console.log(
-      '@BalanceFetcher - erc20 contract configs: ',
-      erc20ContractConfigs
-    )
-  }, [erc20ContractConfigs])
-
-  useEffect(() => {
-    console.log('@BalanceFetcher - eth balance config: ', ethBalanceConfig)
-  }, [ethBalanceConfig])
-
-  useEffect(() => {
     // Prepare balance query configs
     const newErc20ContractConfigs = createContractConfigs(
       address,
@@ -66,12 +51,8 @@ export const BalanceFetcher = () => {
   } = useBalance({
     ...ethBalanceConfig,
     onSuccess() {
-      console.log('@useGetBalances - fetched ETH Balance ', ethBalanceData)
       setReadyToFetchEth(true)
     },
-    // onError(error) {
-    //   console.log('Error', error)
-    // },
     watch: false,
     enabled: true
   })
@@ -89,40 +70,27 @@ export const BalanceFetcher = () => {
         ...item,
         address: erc20ContractConfigs[index].address
       })),
-    onSuccess(ercBalanceData) {
-      console.log('@BalanceFetcher - fetched ERC20 Balances ', ercBalanceData)
+    onSuccess() {
       setReadyToFetchErc(true)
-    },
-    onError(error) {
-      console.log('Error fetching ERC20 balances', error)
     },
     watch: false,
     enabled: true
   })
 
   useEffect(() => {
-    console.log(
-      '@ BalanceFetcher - readyToFetchEth: ',
-      readyToFetchEth,
-      'readyToFetchErc: ',
-      readyToFetchErc
-    )
     if (readyToFetchEth && readyToFetchErc) {
-      console.log('@ BalanceFetcher - ready to fetch')
       setReadyToFetch(true)
     }
   }, [readyToFetchEth, readyToFetchErc])
 
   useEffect(() => {
     if (readyToFetch) {
-      console.log('@ BalanceFetcher - refecting balances...')
       refetchErcBalances()
       refetchEthBalance()
       setReadyToFetch(false)
       setReadyToProcess(true)
-    } else {
-      console.log('@ BalanceFetcher - not ready to fetch')
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [readyToFetch, readyToFetchErc, readyToFetchEth])
 
   useBalanceToasts(
@@ -140,9 +108,8 @@ export const BalanceFetcher = () => {
       listTokens,
       setRetrievedWalletBalances
     )
-    // console.log('processed Balances', updatedTokens)
+
     if (updatedTokens && updatedTokens.length > 0) {
-      console.log('!!!updating listTokens ', updatedTokens)
       setListTokens(updatedTokens)
       setReadyToProcess(false)
     }
@@ -159,7 +126,6 @@ function createContractConfigs(
   if (!address) {
     throw new Error('Address is undefined')
   }
-  // console.log('creating ERC Contract Configs', address, configs)
   return configs.map((config) => ({
     ...config,
     functionName: 'balanceOf',
@@ -204,7 +170,6 @@ export function processBalances(
         return { ...token, balance: balanceData }
       })
     setRetrievedWalletBalances(true)
-    console.log('!!!completed balance processing', updatedTokens)
     return updatedTokens
   }
 }
@@ -234,7 +199,6 @@ const useBalanceToasts = (
     // Show error toast if any balance check encounters an error
     else if (ethBalanceIsError || ercBalanceIsError) {
       currentToastId.current = showErrorToast('Error fetching balances')
-      // console.log('eth: ', ethBalanceIsError, 'erc: ', ercBalanceIsError)
     }
     // Show success toast when all balances are fetched successfully
     else if (retrievedWalletBalances) {
