@@ -2,7 +2,7 @@
 import { Flex } from '@radix-ui/themes'
 import React, { useEffect, useRef } from 'react'
 import { Toaster } from 'react-hot-toast'
-import { useAccount } from 'wagmi'
+import { useAccount, useNetwork } from 'wagmi'
 
 import Footer from './components/footer'
 import Header from './components/header'
@@ -14,6 +14,7 @@ import BalanceFetcher from './components/BalanceFetcher'
 
 export function App() {
   const { isConnected, address } = useAccount()
+  const { chain } = useNetwork()
   const {
     retrievedWalletBalances,
     setRetrievedWalletBalances,
@@ -37,6 +38,10 @@ export function App() {
       prevAddress.current = address
     }
   }, [address, setRetrievedWalletBalances])
+
+  useEffect(() => {
+    setRetrievedWalletBalances(false)
+  }, [chain?.id])
 
   return (
     <>
