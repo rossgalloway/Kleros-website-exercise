@@ -8,28 +8,14 @@ import Footer from './components/footer'
 import Header from './components/header'
 import SendWidget from './components/sendWidget'
 import { useDappContext } from './contexts/dAppContext'
-import { useQueryKlerosTokens } from './hooks/useQueryKlerosTokens'
+import BalanceFetcher from './components/utilities/BalanceFetcher'
+import TokenFetcher from './components/utilities/TokenFetcher'
 // import Logger from './components/Logger'
-import BalanceFetcher from './components/BalanceFetcher'
 
 export function App() {
   const { isConnected, address } = useAccount()
   const { chain } = useNetwork()
-  const {
-    retrievedWalletBalances,
-    setRetrievedWalletBalances,
-    retrievedBadgeTokens,
-    setRetrievedBadgeTokens
-  } = useDappContext()
-  // const { refetchErcBalances, refetchEthBalance } = useGetBalances()
-  const { refetchBadgeData } = useQueryKlerosTokens()
-
-  useEffect(() => {
-    if (!retrievedBadgeTokens) {
-      refetchBadgeData()
-      setRetrievedBadgeTokens(true)
-    }
-  }, [retrievedBadgeTokens, refetchBadgeData, setRetrievedBadgeTokens])
+  const { setRetrievedWalletBalances, retrievedBadgeTokens } = useDappContext()
 
   const prevAddress = useRef(address)
   useEffect(() => {
@@ -47,9 +33,8 @@ export function App() {
     <>
       <Toaster position="bottom-right" />
       {/* <Logger /> */}
-      {isConnected && retrievedBadgeTokens && !retrievedWalletBalances && (
-        <BalanceFetcher />
-      )}
+      <TokenFetcher />
+      {isConnected && retrievedBadgeTokens && <BalanceFetcher />}
       <Flex
         className="app-container"
         direction="column"

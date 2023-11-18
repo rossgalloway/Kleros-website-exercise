@@ -10,7 +10,7 @@ import {
 } from '../types/tokenListTypes'
 import { ETHData } from '../constants/tokenConstants'
 import {
-  badgeContractConfig,
+  badgeTcrContractConfig,
   tokensViewContractConfig
 } from '../constants/klerosAbis'
 import { useTransactionToast } from './useToast'
@@ -29,8 +29,6 @@ const filter = [
   false // Include token if caller is the challenger of a pending request.
 ] as const
 
-//TODO: remove toast error fetching tokens when disconnecting
-
 export const useQueryKlerosTokens = () => {
   const {
     setListTokens,
@@ -41,7 +39,7 @@ export const useQueryKlerosTokens = () => {
 
   const { badgeData, badgeIsError, badgeIsLoading, refetchBadgeData } =
     useQueryBadgeData()
-  const { tokenIdsData, tokenIdsError, tokenIdsIsLoading } =
+  const { tokenIdsData, tokenIdsIsError, tokenIdsIsLoading } =
     useQueryTokenIds(badgeData)
   const { tokensData, tokensDataIsError, tokensDataIsLoading } =
     useGetTokensData(tokenIdsData)
@@ -59,7 +57,7 @@ export const useQueryKlerosTokens = () => {
   useQueryKlerosToasts(
     badgeIsError,
     badgeIsLoading,
-    tokenIdsError,
+    tokenIdsIsError,
     tokenIdsIsLoading,
     tokensDataIsError,
     tokensDataIsLoading,
@@ -79,7 +77,7 @@ function useQueryBadgeData() {
     isLoading: badgeIsLoading,
     refetch: refetchBadgeData
   } = useContractRead({
-    ...badgeContractConfig,
+    ...badgeTcrContractConfig,
     functionName: 'queryAddresses',
     enabled: false,
     args: [zeroAddress, BigInt(1000), filter, true],
@@ -119,7 +117,7 @@ const useQueryTokenIds = (badgeData: Address[] | undefined) => {
     }
   }, [badgeData, refetchTokenIdsData])
 
-  return { tokenIdsData, tokenIdsIsLoading, tokenIdsError: tokenIdsIsError }
+  return { tokenIdsData, tokenIdsIsLoading, tokenIdsIsError }
 }
 
 /**
@@ -181,7 +179,7 @@ export const ProcessTokensData = (
 const useQueryKlerosToasts = (
   badgeIsError: boolean,
   badgeIsLoading: boolean,
-  tokenIdsError: boolean,
+  tokenIdsIsError: boolean,
   tokenIdsIsLoading: boolean,
   tokensDataError: boolean,
   tokensDataIsLoading: boolean,
@@ -203,7 +201,7 @@ const useQueryKlerosToasts = (
       currentToastId.current = showLoadingToast('Fetching Kleros token list...')
     }
     // Show error toast if any query encounters an error
-    else if (badgeIsError || tokenIdsError || tokensDataError) {
+    else if (badgeIsError || tokenIdsIsError || tokensDataError) {
       currentToastId.current = showErrorToast(
         'Error fetching Kleros token list'
       )
@@ -216,7 +214,7 @@ const useQueryKlerosToasts = (
   }, [
     badgeIsError,
     badgeIsLoading,
-    tokenIdsError,
+    tokenIdsIsError,
     tokenIdsIsLoading,
     tokensDataError,
     tokensDataIsLoading,

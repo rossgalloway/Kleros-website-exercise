@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useAccount } from 'wagmi'
-import { useDappContext } from '../contexts/dAppContext'
-import { useSendWidgetContext } from '../contexts/sendWidgetContext'
+import { useDappContext } from '../../contexts/dAppContext'
+import { useSendWidgetContext } from '../../contexts/sendWidgetContext'
 
 export default function Logger() {
   const { address } = useAccount()
@@ -10,9 +10,15 @@ export default function Logger() {
     retrievedWalletBalances,
     retrievedBadgeTokens,
     activeTransactions,
-    completedTransactions
+    completedTransactions,
+    shouldFetchBalances,
+    shouldFetchTokens
   } = useDappContext()
   const { selectedToken } = useSendWidgetContext()
+
+  useEffect(() => {
+    console.log('@logger - logger mounted')
+  }, [])
 
   useEffect(() => {
     console.log('@logger - listTokens updated: ', listTokens)
@@ -47,6 +53,14 @@ export default function Logger() {
   useEffect(() => {
     console.log('completed transactions: ', completedTransactions)
   }, [completedTransactions])
+
+  useEffect(() => {
+    console.log('shouldFetchBalances: ', shouldFetchBalances)
+  }, [shouldFetchBalances])
+
+  useEffect(() => {
+    console.log('shouldFetchTokens: ', shouldFetchTokens)
+  }, [shouldFetchTokens])
 
   return null
 }

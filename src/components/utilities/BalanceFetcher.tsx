@@ -7,10 +7,10 @@ import {
   TokenContractConfig,
   TokenData,
   TokenDataArray
-} from '../types/tokenListTypes'
-import { useDappContext } from '../contexts/dAppContext'
-import { useTransactionToast } from '../hooks/useToast'
-import { ercBalanceData, ethBalanceData } from '../types/ethCallTypes'
+} from '../../types/tokenListTypes'
+import { useDappContext } from '../../contexts/dAppContext'
+import { useTransactionToast } from '../../hooks/useToast'
+import { ercBalanceData, ethBalanceData } from '../../types/ethCallTypes'
 
 export const BalanceFetcher = () => {
   const { address, isConnected } = useAccount()
@@ -19,7 +19,9 @@ export const BalanceFetcher = () => {
     setRetrievedWalletBalances,
     listTokens,
     setListTokens,
-    tokenContractConfigs
+    tokenContractConfigs,
+    shouldFetchBalances,
+    setShouldFetchBalances
   } = useDappContext()
   const [readyToFetchEth, setReadyToFetchEth] = useState<boolean>(false)
   const [readyToFetchErc, setReadyToFetchErc] = useState<boolean>(false)
@@ -54,7 +56,7 @@ export const BalanceFetcher = () => {
       setReadyToFetchEth(true)
     },
     watch: false,
-    enabled: true
+    enabled: false
   })
 
   // Fetch ERC20 token balances
@@ -78,10 +80,10 @@ export const BalanceFetcher = () => {
   })
 
   useEffect(() => {
-    if (readyToFetchEth && readyToFetchErc) {
+    if (readyToFetchEth && readyToFetchErc && shouldFetchBalances) {
       setReadyToFetch(true)
     }
-  }, [readyToFetchEth, readyToFetchErc])
+  }, [readyToFetchEth, readyToFetchErc, shouldFetchBalances])
 
   useEffect(() => {
     if (readyToFetch) {
@@ -89,6 +91,7 @@ export const BalanceFetcher = () => {
       refetchEthBalance()
       setReadyToFetch(false)
       setReadyToProcess(true)
+      setShouldFetchBalances(false)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [readyToFetch, readyToFetchErc, readyToFetchEth])
@@ -181,28 +184,40 @@ const useBalanceToasts = (
   ercIsRefetching: boolean,
   retrievedWalletBalances: boolean
 ) => {
-  const currentToastId = useRef('')
+  const currentBalanceToastId = useRef('balances')
   const { showErrorToast, showInfoToast, showBalanceSuccessToast } =
     useTransactionToast()
 
   useEffect(() => {
     // Dismiss the current toast when the state changes
-    if (currentToastId.current) {
-      toast.dismiss(currentToastId.current)
-      currentToastId.current = ''
+    if (currentBalanceToastId.current) {
+      toast.dismiss(currentBalanceToastId.current)
+      currentBalanceToastId.current = 'balances'
     }
 
     // Show loading toast if either balance check is loading
     if (ethIsRefetching || ercIsRefetching) {
-      currentToastId.current = showInfoToast('Fetching balances...')
+      console.log('fetching balances...')
+      currentBalanceToastId.current = showInfoToast(
+        'Fetching balances...',
+        currentBalanceToastId.current
+      )
     }
     // Show error toast if any balance check encounters an error
     else if (ethBalanceIsError || ercBalanceIsError) {
-      currentToastId.current = showErrorToast('Error fetching balances')
+      console.log('Error fetching balances')
+      currentBalanceToastId.current = showErrorToast(
+        'Error fetching balances',
+        currentBalanceToastId.current
+      )
     }
     // Show success toast when all balances are fetched successfully
     else if (retrievedWalletBalances) {
-      currentToastId.current = showBalanceSuccessToast('Balances updated')
+      console.log('Balances updated')
+      currentBalanceToastId.current = showBalanceSuccessToast(
+        'Balances updated',
+        currentBalanceToastId.current
+      )
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
@@ -215,9 +230,16 @@ const useBalanceToasts = (
 
   // Clean up the toast on unmount
   useEffect(() => {
+    let timeoutId: NodeJS.Timeout
+    if (currentBalanceToastId.current) {
+      timeoutId = setTimeout(() => {
+        toast.dismiss(currentBalanceToastId.current)
+      }, 2000)
+    }
+    // Clear the timeout when the component unmounts
     return () => {
-      if (currentToastId.current) {
-        toast.dismiss(currentToastId.current)
+      if (timeoutId) {
+        clearTimeout(timeoutId)
       }
     }
   }, [])

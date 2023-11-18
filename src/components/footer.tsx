@@ -3,16 +3,16 @@ import { Flex, Tooltip } from '@radix-ui/themes'
 import { GitHubLogoIcon, UpdateIcon } from '@radix-ui/react-icons'
 import { useDappContext } from '../contexts/dAppContext'
 
-// TODO: update github link when repo is published
-
 function Footer() {
   const [isSpinning, setIsSpinning] = useState(false)
-  const { setRetrievedWalletBalances } = useDappContext()
+  const { setShouldFetchBalances, setShouldFetchTokens } = useDappContext()
 
   const handleRefresh = () => {
     setIsSpinning(true)
-    // setRetrievedBadgeTokens(false)
-    setRetrievedWalletBalances(false)
+    setShouldFetchBalances(false)
+    setShouldFetchTokens(false)
+    setTimeout(() => setShouldFetchTokens(true), 500)
+    setTimeout(() => setShouldFetchBalances(true), 1000)
     setTimeout(() => setIsSpinning(false), 1000)
   }
 
@@ -20,7 +20,12 @@ function Footer() {
     <Flex className="footer" direction="row" align="center" gap="5">
       <button
         className="footer-button"
-        onClick={() => window.open('https://github.com/rossgalloway', '_blank')}
+        onClick={() =>
+          window.open(
+            'https://github.com/rossgalloway/Kleros-website-exercise',
+            '_blank'
+          )
+        }
       >
         <GitHubLogoIcon className="footer-icon" />
       </button>

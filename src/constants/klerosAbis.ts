@@ -1,4 +1,4 @@
-export const badgeContractConfig = {
+export const badgeTcrContractConfig = {
   address: '0xCb4Aae35333193232421E86Cd2E9b6C91f3B125F',
   abi: [
     {

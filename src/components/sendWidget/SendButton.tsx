@@ -64,7 +64,6 @@ export function SendButton() {
       </Button>
     )
   }
-
   if (!isValidAddress) {
     return (
       <Button className="button-main" size="4" disabled>
@@ -72,7 +71,6 @@ export function SendButton() {
       </Button>
     )
   }
-
   if (!isValidValueInput) {
     return (
       <Button className="button-main" size="4" disabled>
@@ -80,7 +78,6 @@ export function SendButton() {
       </Button>
     )
   }
-
   if (!isSufficientBalance) {
     return (
       <Button className="button-main" size="4" disabled>
@@ -88,7 +85,6 @@ export function SendButton() {
       </Button>
     )
   }
-
   return (
     <>
       {transactionPayload && <MultiSendButton payload={transactionPayload} />}
@@ -102,10 +98,10 @@ type MultiSendButtonProps = {
 
 const MultiSendButton = ({ payload }: MultiSendButtonProps) => {
   const {
-    setRetrievedWalletBalances,
     setActiveTransactions,
     activeTransactions,
-    setCompletedTransactions
+    setCompletedTransactions,
+    setShouldFetchBalances
   } = useDappContext()
   const { showTransactionSuccessToast, showErrorToast } = useTransactionToast()
 
@@ -133,7 +129,7 @@ const MultiSendButton = ({ payload }: MultiSendButtonProps) => {
     }
     setCompletedTransactions((prev) => [...prev, result])
     setActiveTransactions((prev) => prev.filter((tx) => tx.hash !== result.id))
-    setRetrievedWalletBalances(false)
+    setShouldFetchBalances(true)
   }, [])
 
   return (
@@ -152,10 +148,7 @@ const MultiSendButton = ({ payload }: MultiSendButtonProps) => {
         className="button-main"
         color="blue"
         size="4"
-        onClick={() =>
-          // the transactionDetails object could be variable depending on the input type
-          handleTransactionInitiation(payload)
-        }
+        onClick={() => handleTransactionInitiation(payload)}
       >
         Send
       </Button>

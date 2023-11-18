@@ -45,7 +45,6 @@ export function SendWidget() {
       )
 
       if (updatedToken && updatedToken.balance !== selectedToken.balance) {
-        // Update selectedToken only if the balance is different
         setSelectedToken((prevSelectedToken) => ({
           ...prevSelectedToken,
           balance: updatedToken.balance
