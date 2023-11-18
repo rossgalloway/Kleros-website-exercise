@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from 'react'
 import { TextField, Text, Flex } from '@radix-ui/themes'
 import { useAccount } from 'wagmi'
-// import { useTokens } from '../../contexts/tokenContext'
 import { TokenData, TokenDataArray } from '../../types/tokenListTypes'
 import { useSendWidgetContext } from '../../contexts/sendWidgetContext'
 import { useDappContext } from '../../contexts/dAppContext'
@@ -35,6 +34,17 @@ export function TokenInputBox() {
       setIsValidValueInput,
       setIsSufficientBalance
     )
+  }
+  const handleMaxClick = () => {
+    if (selectedToken && selectedToken.balance) {
+      setFormattedTokenQty(selectedToken.balance)
+      setTokenQtyInputValue(
+        (
+          Number(selectedToken.balance) /
+          Math.pow(10, Number(selectedToken.decimals))
+        ).toString()
+      )
+    }
   }
 
   useEffect(() => {
@@ -80,11 +90,26 @@ export function TokenInputBox() {
       </Flex>
       <Flex className="balance-info">
         {isConnected && (
-          <Text size="1" className="info-text">
-            {'Balance: '}
-            {displayedBalance}
-          </Text>
-          /*TODO: add send max button here*/
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center'
+            }}
+          >
+            <Text
+              size="1"
+              className="info-text"
+              style={{ marginRight: '10px' }}
+            >
+              {'Balance: '}
+              {displayedBalance}
+            </Text>
+            <button className="max-button" onClick={handleMaxClick}>
+              <Text size="1" className="info-text" align="center">
+                {'max'}
+              </Text>
+            </button>
+          </div>
         )}
       </Flex>
     </Flex>

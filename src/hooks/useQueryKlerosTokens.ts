@@ -29,8 +29,6 @@ const filter = [
   false // Include token if caller is the challenger of a pending request.
 ] as const
 
-//TODO: remove toast error fetching tokens when disconnecting
-
 export const useQueryKlerosTokens = () => {
   const {
     setListTokens,

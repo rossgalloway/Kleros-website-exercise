@@ -3,7 +3,6 @@ import {
   type Address,
   useSendTransaction,
   useWaitForTransaction,
-  usePrepareContractWrite,
   erc20ABI,
   useContractWrite
 } from 'wagmi'
@@ -47,15 +46,6 @@ export const TransactionComponent = ({
     // ... other states from useSendTransaction
   } = useSendTransaction()
 
-  // erc prep for transaction
-  const { config } = usePrepareContractWrite({
-    address: payload.token,
-    abi: erc20ABI,
-    functionName: 'transfer',
-    args: [transactionDetails.to, transactionDetails.value],
-    enabled: false
-  })
-
   // erc send transaction
   const {
     writeAsync: writeErc20Transfer,
@@ -63,7 +53,12 @@ export const TransactionComponent = ({
     error: ercInitializeError,
     isLoading: ercIsLoading,
     isError: ercSendIsError
-  } = useContractWrite(config)
+  } = useContractWrite({
+    address: payload.token,
+    abi: erc20ABI,
+    functionName: 'transfer',
+    args: [transactionDetails.to, transactionDetails.value]
+  })
 
   const isLoading = ethIsLoading || ercIsLoading
   const sendIsError = ethSendIsError || ercSendIsError
@@ -177,7 +172,7 @@ export const TransactionComponent = ({
   ])
 
   // Render nothing or a UI element to show transaction status
-  return <div>transactionComponent</div> // or some JSX
+  return null // or some JSX
 }
 
 export default React.memo(TransactionComponent)
