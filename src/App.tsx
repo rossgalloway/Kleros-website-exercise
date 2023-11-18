@@ -8,28 +8,28 @@ import Footer from './components/footer'
 import Header from './components/header'
 import SendWidget from './components/sendWidget'
 import { useDappContext } from './contexts/dAppContext'
-import { useQueryKlerosTokens } from './hooks/useQueryKlerosTokens'
-// import Logger from './components/Logger'
+// import { useQueryKlerosTokens } from './hooks/useQueryKlerosTokens'
+import Logger from './components/Logger'
 import BalanceFetcher from './components/BalanceFetcher'
+import TokenFetcher from './components/TokenFetcher'
 
 export function App() {
   const { isConnected, address } = useAccount()
   const { chain } = useNetwork()
   const {
-    retrievedWalletBalances,
+    // retrievedWalletBalances,
     setRetrievedWalletBalances,
-    retrievedBadgeTokens,
-    setRetrievedBadgeTokens
+    retrievedBadgeTokens
   } = useDappContext()
   // const { refetchErcBalances, refetchEthBalance } = useGetBalances()
-  const { refetchBadgeData } = useQueryKlerosTokens()
+  // const { refetchBadgeData } = useQueryKlerosTokens()
 
-  useEffect(() => {
-    if (!retrievedBadgeTokens) {
-      refetchBadgeData()
-      setRetrievedBadgeTokens(true)
-    }
-  }, [retrievedBadgeTokens, refetchBadgeData, setRetrievedBadgeTokens])
+  // useEffect(() => {
+  //   if (!retrievedBadgeTokens) {
+  //     refetchBadgeData()
+  //     setRetrievedBadgeTokens(true)
+  //   }
+  // }, [retrievedBadgeTokens, refetchBadgeData, setRetrievedBadgeTokens])
 
   const prevAddress = useRef(address)
   useEffect(() => {
@@ -46,10 +46,9 @@ export function App() {
   return (
     <>
       <Toaster position="bottom-right" />
-      {/* <Logger /> */}
-      {isConnected && retrievedBadgeTokens && !retrievedWalletBalances && (
-        <BalanceFetcher />
-      )}
+      <Logger />
+      <TokenFetcher />
+      {isConnected && retrievedBadgeTokens && <BalanceFetcher />}
       <Flex
         className="app-container"
         direction="column"

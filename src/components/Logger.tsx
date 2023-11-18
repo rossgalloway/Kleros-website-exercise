@@ -10,43 +10,57 @@ export default function Logger() {
     retrievedWalletBalances,
     retrievedBadgeTokens,
     activeTransactions,
-    completedTransactions
+    completedTransactions,
+    shouldFetchBalances,
+    shouldFetchTokens
   } = useDappContext()
   const { selectedToken } = useSendWidgetContext()
+
+  useEffect(() => {
+    console.log('@logger - logger mounted')
+  }, [])
 
   useEffect(() => {
     console.log('@logger - listTokens updated: ', listTokens)
   }, [listTokens])
 
-  useEffect(() => {
-    console.log('@logger - selected token updated: ', selectedToken)
-  }, [selectedToken])
+  // useEffect(() => {
+  //   console.log('@logger - selected token updated: ', selectedToken)
+  // }, [selectedToken])
+
+  // useEffect(() => {
+  //   console.log(
+  //     '@logger - retrievedWalletBalances updated: ',
+  //     retrievedWalletBalances
+  //   )
+  // }, [retrievedWalletBalances])
+
+  // useEffect(() => {
+  //   console.log(
+  //     '@logger - retrievedBadgeTokens updated: ',
+  //     retrievedBadgeTokens
+  //   )
+  // }, [retrievedBadgeTokens])
+
+  // useEffect(() => {
+  //   console.log('@logger - address updated: ', address)
+  // }, [address])
+
+  // useEffect(() => {
+  //   console.log('active transactions: ', activeTransactions)
+  // }, [activeTransactions])
+
+  // useEffect(() => {
+  //   console.log('completed transactions: ', completedTransactions)
+  // }, [completedTransactions])
 
   useEffect(() => {
-    console.log(
-      '@logger - retrievedWalletBalances updated: ',
-      retrievedWalletBalances
-    )
-  }, [retrievedWalletBalances])
+    console.log('shouldFetchBalances: ', shouldFetchBalances)
+  }, [shouldFetchBalances])
 
   useEffect(() => {
-    console.log(
-      '@logger - retrievedBadgeTokens updated: ',
-      retrievedBadgeTokens
-    )
-  }, [retrievedBadgeTokens])
-
-  useEffect(() => {
-    console.log('@logger - address updated: ', address)
-  }, [address])
-
-  useEffect(() => {
-    console.log('active transactions: ', activeTransactions)
-  }, [activeTransactions])
-
-  useEffect(() => {
-    console.log('completed transactions: ', completedTransactions)
-  }, [completedTransactions])
+    console.log('shouldFetchTokens: ', shouldFetchTokens)
+  }, [shouldFetchTokens])
 
   return null
 }

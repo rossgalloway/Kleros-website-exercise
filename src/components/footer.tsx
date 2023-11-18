@@ -2,17 +2,18 @@ import React, { useState } from 'react'
 import { Flex, Tooltip } from '@radix-ui/themes'
 import { GitHubLogoIcon, UpdateIcon } from '@radix-ui/react-icons'
 import { useDappContext } from '../contexts/dAppContext'
+import { set } from 'lodash'
 
 // TODO: update github link when repo is published
 
 function Footer() {
   const [isSpinning, setIsSpinning] = useState(false)
-  const { setRetrievedWalletBalances } = useDappContext()
+  const { setShouldFetchBalances, setShouldFetchTokens } = useDappContext()
 
   const handleRefresh = () => {
     setIsSpinning(true)
-    // setRetrievedBadgeTokens(false)
-    setRetrievedWalletBalances(false)
+    setShouldFetchBalances(true)
+    setShouldFetchTokens(true)
     setTimeout(() => setIsSpinning(false), 1000)
   }
 

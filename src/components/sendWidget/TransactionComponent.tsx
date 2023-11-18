@@ -52,7 +52,8 @@ export const TransactionComponent = ({
     address: payload.token,
     abi: erc20ABI,
     functionName: 'transfer',
-    args: [transactionDetails.to, transactionDetails.value]
+    args: [transactionDetails.to, transactionDetails.value],
+    enabled: false
   })
 
   // erc send transaction
@@ -176,7 +177,7 @@ export const TransactionComponent = ({
   ])
 
   // Render nothing or a UI element to show transaction status
-  return null // or some JSX
+  return <div>transactionComponent</div> // or some JSX
 }
 
 export default React.memo(TransactionComponent)

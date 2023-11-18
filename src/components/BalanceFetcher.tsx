@@ -19,7 +19,9 @@ export const BalanceFetcher = () => {
     setRetrievedWalletBalances,
     listTokens,
     setListTokens,
-    tokenContractConfigs
+    tokenContractConfigs,
+    shouldFetchBalances,
+    setShouldFetchBalances
   } = useDappContext()
   const [readyToFetchEth, setReadyToFetchEth] = useState<boolean>(false)
   const [readyToFetchErc, setReadyToFetchErc] = useState<boolean>(false)
@@ -54,7 +56,7 @@ export const BalanceFetcher = () => {
       setReadyToFetchEth(true)
     },
     watch: false,
-    enabled: true
+    enabled: false
   })
 
   // Fetch ERC20 token balances
@@ -78,10 +80,10 @@ export const BalanceFetcher = () => {
   })
 
   useEffect(() => {
-    if (readyToFetchEth && readyToFetchErc) {
+    if (readyToFetchEth && readyToFetchErc && shouldFetchBalances) {
       setReadyToFetch(true)
     }
-  }, [readyToFetchEth, readyToFetchErc])
+  }, [readyToFetchEth, readyToFetchErc, shouldFetchBalances])
 
   useEffect(() => {
     if (readyToFetch) {
@@ -89,6 +91,7 @@ export const BalanceFetcher = () => {
       refetchEthBalance()
       setReadyToFetch(false)
       setReadyToProcess(true)
+      setShouldFetchBalances(false)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [readyToFetch, readyToFetchErc, readyToFetchEth])
@@ -116,7 +119,7 @@ export const BalanceFetcher = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ercBalanceData, ethBalanceData, readyToProcess])
 
-  return null
+  return <div> balance fetcher </div>
 }
 
 function createContractConfigs(
@@ -215,9 +218,16 @@ const useBalanceToasts = (
 
   // Clean up the toast on unmount
   useEffect(() => {
-    return () => {
-      if (currentToastId.current) {
+    let timeoutId: NodeJS.Timeout
+    if (currentToastId.current) {
+      timeoutId = setTimeout(() => {
         toast.dismiss(currentToastId.current)
+      }, 2000)
+    }
+    // Clear the timeout when the component unmounts
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId)
       }
     }
   }, [])

@@ -35,6 +35,10 @@ interface DappContextProps {
   setCompletedTransactions: React.Dispatch<
     React.SetStateAction<TransactionResult[]>
   >
+  shouldFetchTokens: boolean
+  setShouldFetchTokens: React.Dispatch<React.SetStateAction<boolean>>
+  shouldFetchBalances: boolean
+  setShouldFetchBalances: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 // Create a context with a default value
@@ -63,13 +67,6 @@ export const DappProvider: React.FC<TokenProviderProps> = ({ children }) => {
     }
   }
 
-  // return storedListTokens
-  //   ? (deserializeWithBigInt(storedListTokens, [
-  //       'decimals',
-  //       'balance'
-  //     ]) as TokenDataArray)
-  //   : []
-
   const [listTokens, setListTokens] = useState<TokenDataArray>(
     getInitialListTokens()
   )
@@ -86,6 +83,8 @@ export const DappProvider: React.FC<TokenProviderProps> = ({ children }) => {
   const [completedTransactions, setCompletedTransactions] = useState<
     TransactionResult[]
   >([])
+  const [shouldFetchTokens, setShouldFetchTokens] = useState<boolean>(true)
+  const [shouldFetchBalances, setShouldFetchBalances] = useState<boolean>(false)
 
   // Update local storage when listTokens changes
   useEffect(() => {
@@ -113,7 +112,11 @@ export const DappProvider: React.FC<TokenProviderProps> = ({ children }) => {
         activeTransactions,
         setActiveTransactions,
         completedTransactions,
-        setCompletedTransactions
+        setCompletedTransactions,
+        shouldFetchTokens,
+        setShouldFetchTokens,
+        shouldFetchBalances,
+        setShouldFetchBalances
       }}
     >
       {children}
